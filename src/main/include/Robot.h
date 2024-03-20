@@ -158,10 +158,10 @@ class Robot : public frc::TimedRobot {
     m_kinematics,
     gyro.GetRotation2d(),
     frc::MecanumDriveWheelPositions{
-      units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*25)},
-      units::meter_t{(((fr.GetSelectedSensorPosition(0))/4096)*25)},
-      units::meter_t{(((bl.GetSelectedSensorPosition(0))/4096)*25)},
-      units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*25)}
+      units::meter_t{(((fr.GetSelectedSensorPosition(0))/4096)*0.635)},
+      units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*0.635)},
+      units::meter_t{(((bl.GetSelectedSensorPosition(0))/4096)*0.635)},
+      units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*0.635)}
     },
     frc::Pose2d{0_m, 0_m, 0_rad}
   };
