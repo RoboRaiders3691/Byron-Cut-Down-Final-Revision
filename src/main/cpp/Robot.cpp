@@ -59,16 +59,41 @@ void Robot::RobotInit() {
   br.SetSelectedSensorPosition(0,0,10);
   bl.SetSelectedSensorPosition(0,0,10);
 
+  //Front Right Motion Magic Configs
+  fr.SelectProfileSlot(0, 0);
+  fr.Config_kF(0, 0.55, 10);
+  fr.Config_kP(0, 0.06, 10);
+  fr.Config_kI(0, 0.0, 10);
+  fr.Config_kD(0, 0.6, 10);
+  fr.ConfigMotionCruiseVelocity(1500, 10);
+  fr.ConfigMotionAcceleration(700, 10);
 
-  /*Add in the configuration for motion magic for the wheels
-    _talon.SelectProfileSlot(0, 0);
-    _talon.Config_kF(0, 0.3, 10);
-    _talon.Config_kP(0, 0.1, 10);
-    _talon.Config_kI(0, 0.0, 10);
-    _talon.Config_kD(0, 0.0, 10);
-    _talon.ConfigMotionCruiseVelocity(1500, 10);
-    _talon.ConfigMotionAcceleration(1500, 10);
-*/
+  //Front Left Motion Magic Configs
+  fl.SelectProfileSlot(0, 0);
+  fl.Config_kF(0, 0.56, 10);
+  fl.Config_kP(0, 0.06, 10);
+  fl.Config_kI(0, 0.0, 10);
+  fl.Config_kD(0, 0.6, 10);
+  fl.ConfigMotionCruiseVelocity(1500, 10);
+  fl.ConfigMotionAcceleration(700, 10);
+
+  //Back Right Motion Magic Configs
+  br.SelectProfileSlot(0, 0);
+  br.Config_kF(0, 0.53, 10);
+  br.Config_kP(0, 0.06, 10);
+  br.Config_kI(0, 0.0, 10);
+  br.Config_kD(0, 0.6, 10);
+  br.ConfigMotionCruiseVelocity(1500, 10);
+  br.ConfigMotionAcceleration(700, 10);
+
+  //Back Left Motion Magic Configs
+  bl.SelectProfileSlot(0, 0);
+  bl.Config_kF(0, 0.54  , 10);
+  bl.Config_kP(0, 0.06, 10);
+  bl.Config_kI(0, 0.0, 10);
+  bl.Config_kD(0, 0.6, 10);
+  bl.ConfigMotionCruiseVelocity(1500, 10);
+  bl.ConfigMotionAcceleration(700, 10);
 
   secondaryShooter.Follow(mainShooter, true);
   intakeFollow.Follow(intakeMain, false);
@@ -155,6 +180,8 @@ void Robot::TeleopPeriodic() {
 
   RightStickButton = xbox.GetRightStickButton();
   LeftStickButton = xbox.GetLeftStickButton();
+
+  xbox.GetPOV();
 
   //Target Direction, Magnitude, and Turn
   direction = atan2(ly,lx);

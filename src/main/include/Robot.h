@@ -99,6 +99,16 @@ class Robot : public frc::TimedRobot {
   bool LeftStickButton = 0;
   bool RightStickButton = 0;
   
+  //POV D-pad Buttons
+  bool Up = 0;
+  bool Down = 0;
+  bool Left = 0;
+  bool Right = 0;
+  bool UpRight = 0;
+  bool UpLeft = 0;
+  bool DownRight = 0;
+  bool DownLeft = 0;
+  
   //A, B, X, Y, Back, and Start
 
   bool AButton = 0;
