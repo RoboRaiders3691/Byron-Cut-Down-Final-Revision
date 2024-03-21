@@ -147,7 +147,6 @@ class Robot : public frc::TimedRobot {
 
   //Instance of Field2d and Rotation Objects
   frc::Field2d m_field;
-  frc::Rotation2d getRotation2d;
 
   //Set up wheel locations
   frc::Translation2d m_frontLeftLocation{0.53416_m, 0.53416_m};

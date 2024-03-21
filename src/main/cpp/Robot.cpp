@@ -109,10 +109,10 @@ void Robot::RobotInit() {
 void Robot::RobotPeriodic() {
   botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose",std::vector<double>(6));
   
-  frc::CameraServer::StartAutomaticCapture();
+  //frc::CameraServer::StartAutomaticCapture();
 
   m_odometry.Update(
-    getRotation2d,
+    gyro.GetRotation2d(),
     frc::MecanumDriveWheelPositions{
       units::meter_t{(((fr.GetSelectedSensorPosition(0))/4096)*0.635)},
       units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*0.635)},
