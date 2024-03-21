@@ -40,6 +40,7 @@
 #include "frc/Timer.h"
 
 #include <photon/PhotonCamera.h>
+#include <cameraserver/CameraServer.h>
 //#include "LimelightHelpers.h"
 
 #include "wpi/SpanExtras.h"
