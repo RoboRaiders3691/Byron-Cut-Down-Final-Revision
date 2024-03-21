@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include <frc/TimedRobot.h>
 
@@ -131,6 +132,8 @@ class Robot : public frc::TimedRobot {
   double direction = 0.0;
   double magnitude = 0.0;
   double turn = 0.0;
+
+  std::vector<double> botpose;
 
   //Variable for Pi
   const double Pi = 3.1415926535;

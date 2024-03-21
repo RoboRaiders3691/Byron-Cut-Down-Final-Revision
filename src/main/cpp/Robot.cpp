@@ -107,6 +107,8 @@ void Robot::RobotInit() {
  * LiveWindow and SmartDashboard integrated updating.
  */
 void Robot::RobotPeriodic() {
+  botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose",std::vector<double>(6));
+  
   m_odometry.Update(
     getRotation2d,
     frc::MecanumDriveWheelPositions{
