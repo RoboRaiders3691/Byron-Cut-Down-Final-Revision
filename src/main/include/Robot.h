@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include <frc/TimedRobot.h>
 
@@ -41,6 +42,7 @@
 #include "frc/Timer.h"
 
 #include <photon/PhotonCamera.h>
+#include <cameraserver/CameraServer.h>
 //#include "LimelightHelpers.h"
 
 #include "wpi/SpanExtras.h"
@@ -132,6 +134,8 @@ class Robot : public frc::TimedRobot {
   double magnitude = 0.0;
   double turn = 0.0;
 
+  std::vector<double> botpose;
+
   //Variable for Pi
   const double Pi = 3.1415926535;
 
@@ -143,7 +147,6 @@ class Robot : public frc::TimedRobot {
 
   //Instance of Field2d and Rotation Objects
   frc::Field2d m_field;
-  frc::Rotation2d getRotation2d;
 
   //Set up wheel locations
   frc::Translation2d m_frontLeftLocation{0.53416_m, 0.53416_m};
@@ -156,14 +159,14 @@ class Robot : public frc::TimedRobot {
 
   frc::MecanumDriveOdometry m_odometry{
     m_kinematics,
-    getRotation2d,
+    gyro.GetRotation2d(),
     frc::MecanumDriveWheelPositions{
-      units::inch_t{(((fr.GetSelectedSensorPosition(0))/4096)*25)},
-      units::inch_t{(((fl.GetSelectedSensorPosition(0))/4096)*25)},
-      units::inch_t{(((bl.GetSelectedSensorPosition(0))/4096)*25)},
-      units::inch_t{(((br.GetSelectedSensorPosition(0))/4096)*25)}
+      units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*0.635)},
+      units::meter_t{(((fr.GetSelectedSensorPosition(0))/4096)*-0.635)},
+      units::meter_t{(((bl.GetSelectedSensorPosition(0))/4096)*0.635)},
+      units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*-0.635)}
     },
-    frc::Pose2d{5_m, 23.5_m, 0_rad}
+    frc::Pose2d{0_m, 0_m, 0_rad}
   };
 
   //Instance of PhotonCamera

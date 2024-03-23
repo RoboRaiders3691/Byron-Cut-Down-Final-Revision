@@ -14,7 +14,6 @@ void Robot::RobotInit() {
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
-  frc::SmartDashboard::PutData("Field", &m_field);
 
   ctre::phoenix6::configs::TalonFXConfiguration talonFXConfigs{};
 
@@ -113,16 +112,21 @@ void Robot::RobotInit() {
  * LiveWindow and SmartDashboard integrated updating.
  */
 void Robot::RobotPeriodic() {
+  botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose",std::vector<double>(6));
+  
+  //frc::CameraServer::StartAutomaticCapture();
+
   m_odometry.Update(
-    getRotation2d,
+    gyro.GetRotation2d(),
     frc::MecanumDriveWheelPositions{
-      units::inch_t{(((fr.GetSelectedSensorPosition(0))/4096)*25)},
-      units::inch_t{(((fl.GetSelectedSensorPosition(0))/4096)*25)},
-      units::inch_t{(((bl.GetSelectedSensorPosition(0))/4096)*25)},
-      units::inch_t{(((br.GetSelectedSensorPosition(0))/4096)*25)}
+      units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*0.635)},
+      units::meter_t{(((fr.GetSelectedSensorPosition(0))/4096)*-0.635)},
+      units::meter_t{(((bl.GetSelectedSensorPosition(0))/4096)*0.635)},
+      units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*-0.635)}
     }
   );
   m_field.SetRobotPose(m_odometry.GetPose());
+  frc::SmartDashboard::PutData("Field", &m_field);
 
   frc::SmartDashboard::PutNumber("Heading", gyro.GetAngle());
 }
@@ -159,7 +163,18 @@ void Robot::AutonomousPeriodic() {
   }
 }
 
-void Robot::TeleopInit() {}
+void Robot::TeleopInit() {
+    m_odometry.ResetPosition(
+    gyro.GetRotation2d(),
+    frc::MecanumDriveWheelPositions{
+      units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*25)},
+      units::meter_t{(((fr.GetSelectedSensorPosition(0))/4096)*25)},
+      units::meter_t{(((bl.GetSelectedSensorPosition(0))/4096)*25)},
+      units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*25)}
+    },
+    frc::Pose2d(0_m, 0_m, 0_rad)
+  );
+}
 
 void Robot::TeleopPeriodic() {
 
