@@ -107,7 +107,7 @@ void Robot::RobotInit() {
  * LiveWindow and SmartDashboard integrated updating.
  */
 void Robot::RobotPeriodic() {
-  botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose",std::vector<double>(6));
+  //botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose",std::vector<double>(6));
   
   //frc::CameraServer::StartAutomaticCapture();
 
@@ -278,12 +278,14 @@ if(YButton){
   pickupTimer.Start();
   intakeMain.Set(-.4);
   pickupActive = 1;
+  xbox.SetRumble(frc::GenericHID::kBothRumble, 1);
 }
 if(pickupTimer.HasElapsed(.6_s)){
   intakeMain.Set(0);
   pickupTimer.Stop();
   pickupTimer.Reset();
   pickupActive = 0;
+  xbox.SetRumble(frc::GenericHID::kBothRumble, 0);
 }
 
 //If intaking dont shoot, Shooter statements
@@ -348,6 +350,43 @@ if(LeftStickButton){
 
 }
 
+
+std::string Robot::Dpad(){
+  xbox.GetPOV();
+
+  //Check Up Down Left and Right
+  if(xbox.GetPOV() == 0){
+    return "Up";
+  }
+  else if(xbox.GetPOV() == 180){
+    return "Down";
+  }
+  else if(xbox.GetPOV() == 270){
+    return "Left";
+  }
+  else if(xbox.GetPOV() == 90){
+    return "Right";
+  }
+
+  //Check the diagonal states
+
+  if(xbox.GetPOV() == 45){
+    return "UpRight";
+  }
+  else if(xbox.GetPOV() == 135){
+    return "DownRight";
+  }
+  else if(xbox.GetPOV() == 225){
+    return "DownLeft";
+  }
+  else if(xbox.GetPOV() == 315){
+    return "UpLeft";
+  }
+  else{
+    return "None";
+  }
+
+}
 void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {}
