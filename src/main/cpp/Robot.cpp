@@ -59,6 +59,11 @@ void Robot::RobotInit() {
   br.SetSelectedSensorPosition(0,0,10);
   bl.SetSelectedSensorPosition(0,0,10);
 
+  fl.SetStatusFramePeriod(StatusFrameEnhanced::Status_13_Base_PIDF0, 10, 10);
+  fr.SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 10, 10);
+  br.SetStatusFramePeriod(StatusFrameEnhanced::Status_13_Base_PIDF0, 10, 10);
+  bl.SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 10, 10);
+
   //Front Right Motion Magic Configs
   fr.SelectProfileSlot(0, 0);
   fr.Config_kF(0, 0.55, 10);
@@ -168,8 +173,6 @@ void Robot::TeleopPeriodic() {
   XButton = xbox.GetXButton();
   YButton = xbox.GetYButton();
 
-
-
   LeftTrigger = xbox.GetLeftTriggerAxis();
   LeftBumper = xbox.GetLeftBumper();
   RightTrigger = xbox.GetRightTriggerAxis();
@@ -181,16 +184,12 @@ void Robot::TeleopPeriodic() {
   RightStickButton = xbox.GetRightStickButton();
   LeftStickButton = xbox.GetLeftStickButton();
 
-  xbox.GetPOV();
-
   //Target Direction, Magnitude, and Turn
   direction = atan2(ly,lx);
   magnitude = hypot(lx,ly);
   turn = rx*0.7;
 
-
   //Half Trapazoidal Acceleration 
-
   if(magnitude>=1){
     magnitude = 1;
   }
@@ -211,8 +210,6 @@ void Robot::TeleopPeriodic() {
   }
 
   spd = (spdmult);
-
-
 
 
   if(ly>=0.1 || ly<=-0.1 || lx>=0.1 ||lx<=-0.1){
@@ -241,9 +238,15 @@ void Robot::TeleopPeriodic() {
   ar.SetControl(m_request.WithPosition(39_tr));
 
   }
+  
   if(BackButton){
+
     ar.SetControl(m_request.WithPosition(25_tr));
 
+    //fr.Set(ControlMode::MotionMagic, -4096);
+    //fl.Set(ControlMode::MotionMagic, 4096);
+    //br.Set(ControlMode::MotionMagic, -4096);
+    //bl.Set(ControlMode::MotionMagic, 4096);
   }
 
   if(LeftBumper){
@@ -261,15 +264,21 @@ void Robot::TeleopPeriodic() {
 //Intake Statements
 if(YButton){
   pickupTimer.Start();
-  intakeMain.Set(-.4);
+  intakeMain.Set(-.23);
   pickupActive = 1;
+  xbox.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 1);
 }
-if(pickupTimer.HasElapsed(.6_s)){
+
+if(ColorSensor.GetProximity() > 1000||pickupTimer.HasElapsed(2_s)){
   intakeMain.Set(0);
   pickupTimer.Stop();
   pickupTimer.Reset();
   pickupActive = 0;
+  xbox.SetRumble(frc::GenericHID::RumbleType::kBothRumble, 0);
 }
+
+frc::SmartDashboard::PutNumber("Proxim", ColorSensor.GetProximity());
+frc::SmartDashboard::PutString("Dpad", Dpad());
 
 //If intaking dont shoot, Shooter statements
 if(!pickupActive){
@@ -331,6 +340,45 @@ if(LeftStickButton){
 
 }
 
+}
+
+std::string Robot::Dpad(){
+  xbox.GetPOV();
+
+  //Check Up Down Left and Right
+  if(xbox.GetPOV() == 0){
+    return "Up";
+  }
+  else if(xbox.GetPOV() == 180){
+    return "Down";
+  }
+  else if(xbox.GetPOV() == 270){
+    return "Left";
+  }
+  else if(xbox.GetPOV() == 90){
+    return "Right";
+  }
+
+  //Check the diagonal states
+
+  if(xbox.GetPOV() == 45){
+    return "UpRight";
+  }
+  else if(xbox.GetPOV() == 135){
+    return "DownRight";
+  }
+  else if(xbox.GetPOV() == 225){
+    return "DownLeft";
+  }
+  else if(xbox.GetPOV() == 315){
+    return "UpLeft";
+  }
+  else{
+    return "None";
+  }
+
+
+  
 }
 
 void Robot::DisabledInit() {}
