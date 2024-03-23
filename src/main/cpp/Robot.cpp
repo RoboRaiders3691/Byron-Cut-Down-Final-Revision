@@ -392,8 +392,6 @@ std::string Robot::Dpad(){
     return "None";
   }
 
-
-  
 }
 
 void Robot::DisabledInit() {}
