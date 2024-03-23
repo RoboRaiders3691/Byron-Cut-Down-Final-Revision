@@ -21,7 +21,6 @@
 #include <frc/estimator/MecanumDrivePoseEstimator.h>
 
 #include <frc/XboxController.h>
-#include <frc/GenericHID.h>
 
 #include "ctre/Phoenix.h"
 #include "ctre/phoenix6/TalonFX.hpp"
@@ -31,7 +30,6 @@
 
 #include "rev/CANSparkMax.h"
 #include "rev/CANSparkLowLevel.h"
-#include "rev/ColorSensorV3.h"
 
 #include <units/angle.h>
 #include <units/length.h>
@@ -69,8 +67,6 @@ class Robot : public frc::TimedRobot {
   void SimulationInit() override;
   void SimulationPeriodic() override;
 
-  std::string Dpad();
-
  private:
   frc::SendableChooser<std::string> m_chooser;
   const std::string kAutoNameDefault = "Default";
@@ -93,11 +89,6 @@ class Robot : public frc::TimedRobot {
   rev::CANSparkMax intakeMain{12, rev::CANSparkLowLevel::MotorType::kBrushless};
   rev::CANSparkMax intakeFollow{15, rev::CANSparkLowLevel::MotorType::kBrushless};
 
-  //Color Sensor V3
-  static constexpr auto i2cPort = frc::I2C::kOnboard;
-
-  rev::ColorSensorV3 ColorSensor{i2cPort};
-
   //Drive Multipliers
   double spdmult = 1;
   double topspeed = 1;
@@ -109,7 +100,16 @@ class Robot : public frc::TimedRobot {
   double ry = 0.0;
   bool LeftStickButton = 0;
   bool RightStickButton = 0;
-
+  
+  //POV D-pad Buttons
+  bool Up = 0;
+  bool Down = 0;
+  bool Left = 0;
+  bool Right = 0;
+  bool UpRight = 0;
+  bool UpLeft = 0;
+  bool DownRight = 0;
+  bool DownLeft = 0;
   
   //A, B, X, Y, Back, and Start
 
@@ -156,7 +156,6 @@ class Robot : public frc::TimedRobot {
 
   //Create kinematics object using the wheel locations
   frc::MecanumDriveKinematics m_kinematics{m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation};
-
   frc::MecanumDriveOdometry m_odometry{
     m_kinematics,
     gyro.GetRotation2d(),
@@ -181,5 +180,4 @@ class Robot : public frc::TimedRobot {
   int flipDrive = 1;
 
   double targetAngle = 0;
-
 };
