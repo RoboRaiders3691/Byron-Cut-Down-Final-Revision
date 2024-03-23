@@ -114,10 +114,10 @@ void Robot::RobotPeriodic() {
   m_odometry.Update(
     gyro.GetRotation2d(),
     frc::MecanumDriveWheelPositions{
-      units::meter_t{(((fr.GetSelectedSensorPosition(0))/4096)*0.635)},
       units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*0.635)},
+      units::meter_t{(((fr.GetSelectedSensorPosition(0))/4096)*-0.635)},
       units::meter_t{(((bl.GetSelectedSensorPosition(0))/4096)*0.635)},
-      units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*0.635)}
+      units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*-0.635)}
     }
   );
   m_field.SetRobotPose(m_odometry.GetPose());
