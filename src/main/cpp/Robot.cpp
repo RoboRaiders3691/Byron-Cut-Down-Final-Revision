@@ -124,6 +124,12 @@ void Robot::RobotPeriodic() {
   frc::SmartDashboard::PutData("Field", &m_field);
 
   frc::SmartDashboard::PutNumber("Heading", gyro.GetAngle());
+
+  m_field.GetRobotPose();
+
+  //units::length::meter_t distance;
+  //distance = frc::Pose2d::X;
+  //distance.value();
 }
 
 /**
