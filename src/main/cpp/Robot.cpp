@@ -152,7 +152,7 @@ void Robot::RobotPeriodic() {
     frc::Transform3d robotToTargetTrans = camToTargetTrans + robotToCam1;
      
     //m_poseEstimator.AddVisionMeasurement(robotToTargetTrans, imageCaptureTime); 
-  }
+  };
 
   m_field.SetRobotPose(m_poseEstimator.GetEstimatedPosition());
 
