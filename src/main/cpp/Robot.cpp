@@ -9,7 +9,7 @@
 
 void Robot::RobotInit() {
   //initialize Field2d
-  frc::Field2d(m_field);
+  frc::Field2d m_field;
 
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
