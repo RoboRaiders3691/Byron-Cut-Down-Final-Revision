@@ -5,6 +5,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <utility>
 
 #include <frc/TimedRobot.h>
 
@@ -39,8 +41,12 @@
 #include <frc/geometry/Pose3d.h>
 #include <frc/geometry/Transform3d.h>
 #include "frc/Timer.h"
+#include <frc/apriltag/AprilTagFieldLayout.h>
+#include <frc/apriltag/AprilTagFields.h>
+
 
 #include <photon/PhotonCamera.h>
+#include <photon/PhotonPoseEstimator.h>
 //#include "LimelightHelpers.h"
 
 #include "wpi/SpanExtras.h"
@@ -50,7 +56,6 @@
 
 #define WPILIB_DLLEXPORT
 class WPILIB_DLLEXPORT ObjectToRobotPose;
-
 
 class Robot : public frc::TimedRobot {
  public:
@@ -108,8 +113,6 @@ class Robot : public frc::TimedRobot {
   bool LeftStickButton = 0;
   bool RightStickButton = 0;
   
-  
-  
   //A, B, X, Y, Back, and Start
 
   bool AButton = 0;
@@ -157,9 +160,9 @@ class Robot : public frc::TimedRobot {
   //Create kinematics object using the wheel locations
   frc::MecanumDriveKinematics m_kinematics{m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation};
 
-  frc::MecanumDriveOdometry m_odometry{
+  frc::MecanumDrivePoseEstimator m_poseEstimator{
     m_kinematics,
-    getRotation2d,
+    gyro.GetRotation2d(),
     frc::MecanumDriveWheelPositions{
       units::inch_t{(((fr.GetSelectedSensorPosition(0))/4096)*25)},
       units::inch_t{(((fl.GetSelectedSensorPosition(0))/4096)*25)},
@@ -170,7 +173,15 @@ class Robot : public frc::TimedRobot {
   };
 
   //Instance of PhotonCamera
-  photon::PhotonCamera pCamera{"Microsoft_LifeCam_HD-3000"};
+
+  photon::PhotonCamera pCamera1{"Microsoft_LifeCam_HD-3000"};
+
+
+  //offset currently undecided
+  frc::Transform3d robotToCam1 =
+  frc::Transform3d(frc::Translation3d(0_m, 0_m, 0_m),
+                    frc::Rotation3d(0_rad, 0_rad, 0_rad));
+                    
    
   frc::Timer pickupTimer;
   frc::Timer shooterDelay;
@@ -181,5 +192,13 @@ class Robot : public frc::TimedRobot {
   int flipDrive = 1;
 
   double targetAngle = 0;
+
+
+  //std::vector<std::pair<std::shared_ptr<photon::PhotonCamera>, frc::Transform3d>> cameras;
+
+    frc::AprilTagFieldLayout aprilTagFieldLayout = frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
+
+    //photon::PhotonPoseEstimator poseEstimator(
+    //aprilTagFieldLayout, photon::AVERAGE_BEST_TARGETS, std::move(pCamera1), robotToCam1);
 
 };

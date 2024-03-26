@@ -96,7 +96,17 @@ void Robot::RobotInit() {
 
   secondaryShooter.Follow(mainShooter, true);
   intakeFollow.Follow(intakeMain, false);
-}
+
+    //frc::AprilTagFieldLayout aprilTagFieldLayout = frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
+
+    //cameras.push_back(std::make_pair(pCamera1, robotToCam1));
+
+    /*photon::PhotonPoseEstimator poseEstimator(
+    aprilTagFieldLayout, photon::LOWEST_AMBIGUITY, std::move(pCamera1), robotToCam1);
+
+    poseEstimator.Update();*/
+
+} 
 
 /**
  * This function is called every 20 ms, no matter the mode. Use
@@ -111,7 +121,7 @@ void Robot::RobotPeriodic() {
   
   //frc::CameraServer::StartAutomaticCapture();
 
-  m_odometry.Update(
+  /*m_odometry.Update(
     gyro.GetRotation2d(),
     frc::MecanumDriveWheelPositions{
       units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*0.635)},
@@ -120,10 +130,34 @@ void Robot::RobotPeriodic() {
       units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*-0.635)}
     }
   );
+
   m_field.SetRobotPose(m_odometry.GetPose());
-  frc::SmartDashboard::PutData("Field", &m_field);
+  frc::SmartDashboard::PutData("Field", &m_field);*/
+
+  m_poseEstimator.Update(
+    gyro.GetRotation2d(),
+    frc::MecanumDriveWheelPositions{
+      units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*0.635)},
+      units::meter_t{(((fr.GetSelectedSensorPosition(0))/4096)*-0.635)},
+      units::meter_t{(((bl.GetSelectedSensorPosition(0))/4096)*0.635)},
+      units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*-0.635)}
+    }
+  );
+
+  auto camera1Result = pCamera1.GetLatestResult();
+
+  if(camera1Result.HasTargets() && camera1Result.GetBestTarget().GetPoseAmbiguity() < 0.2){
+    units::second_t imageCaptureTime = camera1Result.GetTimestamp();
+    frc::Transform3d camToTargetTrans = camera1Result.MultiTagResult().result.best;
+    frc::Transform3d robotToTargetTrans = camToTargetTrans + robotToCam1;
+     
+    //m_poseEstimator.AddVisionMeasurement(robotToTargetTrans, imageCaptureTime); 
+  }
+
+  m_field.SetRobotPose(m_poseEstimator.GetEstimatedPosition());
 
   frc::SmartDashboard::PutNumber("Heading", gyro.GetAngle());
+
 }
 
 /**
@@ -159,7 +193,7 @@ void Robot::AutonomousPeriodic() {
 }
 
 void Robot::TeleopInit() {
-    m_odometry.ResetPosition(
+    /*m_odometry.ResetPosition(
     gyro.GetRotation2d(),
     frc::MecanumDriveWheelPositions{
       units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*25)},
@@ -168,7 +202,7 @@ void Robot::TeleopInit() {
       units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*25)}
     },
     frc::Pose2d(0_m, 0_m, 0_rad)
-  );
+  );*/
 }
 
 void Robot::TeleopPeriodic() {
@@ -385,6 +419,9 @@ std::string Robot::Dpad(){
   else{
     return "None";
   }
+
+  //pCamera1.GetLatestResult();
+
 
 }
 void Robot::DisabledInit() {}
