@@ -137,7 +137,7 @@ void Robot::RobotPeriodic() {
   frc::SmartDashboard::PutData("Field", &m_field);*/
   
   
-  robotAngle = frc::InputModulus<frc::Rotation2d>(
+  robotAngle = frc::InputModulus<units::angle::degree_t>(
     rotation, halfangle2, halfangle);
   
 

@@ -150,7 +150,7 @@ class Robot : public frc::TimedRobot {
 
   //Instance of Field2d and Rotation Objects
   frc::Field2d m_field;
-  frc::Rotation2d::Degrees rotation(gyro.GetRotation2d());
+  frc::Rotation2d rotation(units::degree_t(gyro.GetRotation2d()));
   frc::Rotation2d halfangle(units::degree_t(180));
   frc::Rotation2d halfangle2(units::degree_t(-180));
   frc::Rotation2d robotAngle;
