@@ -151,9 +151,6 @@ class Robot : public frc::TimedRobot {
 
   //Instance of Field2d and Rotation Objects
   frc::Field2d m_field;
-<<<<<<< HEAD
-  frc::Rotation2d Rotation = gyro.GetRotation2d();
-=======
 
   units::degree_t halfangle{180};
   units::degree_t halfangle2{-180};
@@ -164,7 +161,6 @@ class Robot : public frc::TimedRobot {
   /*frc::Rotation2d halfangle{units::degree_t(180)};
   frc::Rotation2d halfangle2{units::degree_t(-180)};
   frc::Rotation2d robotAngle{};*/
->>>>>>> 343abfc316b5eadc65c27ff0fa4ced1b3da1b560
 
   //Set up wheel locations
   frc::Translation2d m_frontLeftLocation{0.53416_m, 0.53416_m};
@@ -211,12 +207,7 @@ class Robot : public frc::TimedRobot {
 
     frc::AprilTagFieldLayout aprilTagFieldLayout = frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
 
-<<<<<<< HEAD
-    //photon::PhotonPoseEstimator poseEstimator(
-    //aprilTagFieldLayout, photon::AVERAGE_BEST_TARGETS, std::move(pCamera1), robotToCam1);
-=======
     photon::PhotonPoseEstimator poseEstimator{
     aprilTagFieldLayout, photon::AVERAGE_BEST_TARGETS, std::move(pCamera1), robotToCam1};
 
->>>>>>> 343abfc316b5eadc65c27ff0fa4ced1b3da1b560
 };
