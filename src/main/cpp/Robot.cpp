@@ -118,8 +118,8 @@ void Robot::RobotInit() {
  */
 void Robot::RobotPeriodic() {
   botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("targetpose_robotspace",std::vector<double>(6));
-  
-  
+
+  Rotation.Degrees();
 
   //frc::CameraServer::StartAutomaticCapture();
 

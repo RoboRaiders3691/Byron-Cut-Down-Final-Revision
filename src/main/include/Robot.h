@@ -45,6 +45,7 @@
 #include <frc/apriltag/AprilTagFields.h>
 
 
+
 #include <photon/PhotonCamera.h>
 #include <photon/PhotonPoseEstimator.h>
 //#include "LimelightHelpers.h"
@@ -149,7 +150,7 @@ class Robot : public frc::TimedRobot {
 
   //Instance of Field2d and Rotation Objects
   frc::Field2d m_field;
-  frc::Rotation2d getRotation2d;
+  frc::Rotation2d Rotation = gyro.GetRotation2d();
 
   //Set up wheel locations
   frc::Translation2d m_frontLeftLocation{0.53416_m, 0.53416_m};
@@ -200,5 +201,4 @@ class Robot : public frc::TimedRobot {
 
     //photon::PhotonPoseEstimator poseEstimator(
     //aprilTagFieldLayout, photon::AVERAGE_BEST_TARGETS, std::move(pCamera1), robotToCam1);
-
 };
