@@ -133,9 +133,14 @@ void Robot::RobotPeriodic() {
 
   m_field.SetRobotPose(m_odometry.GetPose());
   frc::SmartDashboard::PutData("Field", &m_field);*/
+  
+  
+  robotAngle = frc::InputModulus<frc::Rotation2d>(
+    rotation, halfangle2, halfangle);
+  
 
-  m_poseEstimator.Update(
-    gyro.GetRotation2d(),
+   m_poseEstimator.Update(
+    robotAngle,
     frc::MecanumDriveWheelPositions{
       units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*0.635)},
       units::meter_t{(((fr.GetSelectedSensorPosition(0))/4096)*-0.635)},

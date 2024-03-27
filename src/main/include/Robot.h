@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <frc/MathUtil.h>
 
 #include <frc/TimedRobot.h>
 
@@ -149,7 +150,10 @@ class Robot : public frc::TimedRobot {
 
   //Instance of Field2d and Rotation Objects
   frc::Field2d m_field;
-  frc::Rotation2d getRotation2d;
+  frc::Rotation2d::Degrees rotation(gyro.GetRotation2d());
+  frc::Rotation2d halfangle(units::degree_t(180));
+  frc::Rotation2d halfangle2(units::degree_t(-180));
+  frc::Rotation2d robotAngle;
 
   //Set up wheel locations
   frc::Translation2d m_frontLeftLocation{0.53416_m, 0.53416_m};
@@ -162,7 +166,7 @@ class Robot : public frc::TimedRobot {
 
   frc::MecanumDrivePoseEstimator m_poseEstimator{
     m_kinematics,
-    gyro.GetRotation2d(),
+    robotAngle,
     frc::MecanumDriveWheelPositions{
       units::inch_t{(((fr.GetSelectedSensorPosition(0))/4096)*25)},
       units::inch_t{(((fl.GetSelectedSensorPosition(0))/4096)*25)},
