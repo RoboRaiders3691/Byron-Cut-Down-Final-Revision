@@ -168,12 +168,12 @@ class Robot : public frc::TimedRobot {
     m_kinematics,
     robotAngle,
     frc::MecanumDriveWheelPositions{
-      units::inch_t{(((fr.GetSelectedSensorPosition(0))/4096)*25)},
-      units::inch_t{(((fl.GetSelectedSensorPosition(0))/4096)*25)},
-      units::inch_t{(((bl.GetSelectedSensorPosition(0))/4096)*25)},
-      units::inch_t{(((br.GetSelectedSensorPosition(0))/4096)*25)}
+      units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*0.635)},
+      units::meter_t{(((fr.GetSelectedSensorPosition(0))/4096)*-0.635)},
+      units::meter_t{(((bl.GetSelectedSensorPosition(0))/4096)*0.635)},
+      units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*-0.635)}
     },
-    frc::Pose2d{5_m, 23.5_m, 0_rad}
+    frc::Pose2d{0_m, 0_m, 0_rad}
   };
 
   //Instance of PhotonCamera

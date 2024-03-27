@@ -117,8 +117,10 @@ void Robot::RobotInit() {
  * LiveWindow and SmartDashboard integrated updating.
  */
 void Robot::RobotPeriodic() {
-  botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose",std::vector<double>(6));
+  botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("targetpose_robotspace",std::vector<double>(6));
   
+  
+
   //frc::CameraServer::StartAutomaticCapture();
 
   /*m_odometry.Update(
@@ -163,6 +165,12 @@ void Robot::RobotPeriodic() {
 
   frc::SmartDashboard::PutNumber("Heading", gyro.GetAngle());
 
+
+  m_field.GetRobotPose();
+
+  //units::length::meter_t distance;
+  //distance = frc::Pose2d::X;
+  //distance.value();
 }
 
 /**
