@@ -136,13 +136,13 @@ void Robot::RobotPeriodic() {
   m_field.SetRobotPose(m_odometry.GetPose());
   frc::SmartDashboard::PutData("Field", &m_field);*/
   
-  
-  robotAngle = frc::InputModulus<units::angle::degree_t>(
-    rotation, halfangle2, halfangle);
-  
+  rotation = gyro.GetRotation2d();
 
+  robotAngle = frc::InputModulus<units::degree_t>(
+    rotation.Degrees(), halfangle2, halfangle);
+  
    m_poseEstimator.Update(
-    robotAngle,
+    frc::Rotation2d{robotAngle},
     frc::MecanumDriveWheelPositions{
       units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*0.635)},
       units::meter_t{(((fr.GetSelectedSensorPosition(0))/4096)*-0.635)},
@@ -151,15 +151,21 @@ void Robot::RobotPeriodic() {
     }
   );
 
-  auto camera1Result = pCamera1.GetLatestResult();
+  /*auto camera1Result = pCamera1.GetLatestResult();
 
-  if(camera1Result.HasTargets() && camera1Result.GetBestTarget().GetPoseAmbiguity() < 0.2){
+  if(camera1Result.MultiTagResult().result.isPresent && camera1Result.GetBestTarget().GetPoseAmbiguity() < 0.2){
     units::second_t imageCaptureTime = camera1Result.GetTimestamp();
-    frc::Transform3d camToTargetTrans = camera1Result.MultiTagResult().result.best;
-    frc::Transform3d robotToTargetTrans = camToTargetTrans + robotToCam1;
+    frc::Transform3d camToFieldTrans = camera1Result.MultiTagResult().result.best;
+    frc::Transform3d robotToFieldTrans = camToFieldTrans + robotToCam1;
      
     //m_poseEstimator.AddVisionMeasurement(robotToTargetTrans, imageCaptureTime); 
-  };
+  };*/
+
+  auto camPoseEstimate = poseEstimator.Update();
+
+  if(camPoseEstimate){
+    m_poseEstimator.AddVisionMeasurement(camPoseEstimate->estimatedPose.ToPose2d(), camPoseEstimate->timestamp);
+  }
 
   m_field.SetRobotPose(m_poseEstimator.GetEstimatedPosition());
 

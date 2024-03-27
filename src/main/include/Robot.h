@@ -150,10 +150,16 @@ class Robot : public frc::TimedRobot {
 
   //Instance of Field2d and Rotation Objects
   frc::Field2d m_field;
-  frc::Rotation2d rotation(units::degree_t(gyro.GetRotation2d()));
-  frc::Rotation2d halfangle(units::degree_t(180));
-  frc::Rotation2d halfangle2(units::degree_t(-180));
-  frc::Rotation2d robotAngle;
+
+  units::degree_t halfangle{180};
+  units::degree_t halfangle2{-180};
+  units::degree_t robotAngle{0};
+
+  frc::Rotation2d rotation = gyro.GetRotation2d();
+
+  /*frc::Rotation2d halfangle{units::degree_t(180)};
+  frc::Rotation2d halfangle2{units::degree_t(-180)};
+  frc::Rotation2d robotAngle{};*/
 
   //Set up wheel locations
   frc::Translation2d m_frontLeftLocation{0.53416_m, 0.53416_m};
@@ -198,11 +204,9 @@ class Robot : public frc::TimedRobot {
   double targetAngle = 0;
 
 
-  //std::vector<std::pair<std::shared_ptr<photon::PhotonCamera>, frc::Transform3d>> cameras;
-
     frc::AprilTagFieldLayout aprilTagFieldLayout = frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
 
-    //photon::PhotonPoseEstimator poseEstimator(
-    //aprilTagFieldLayout, photon::AVERAGE_BEST_TARGETS, std::move(pCamera1), robotToCam1);
+    photon::PhotonPoseEstimator poseEstimator{
+    aprilTagFieldLayout, photon::AVERAGE_BEST_TARGETS, std::move(pCamera1), robotToCam1};
 
 };
