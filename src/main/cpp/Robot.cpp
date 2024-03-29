@@ -117,7 +117,7 @@ void Robot::RobotInit() {
  */
 void Robot::RobotPeriodic() {
   botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("targetpose_robotspace",std::vector<double>(6));
-  
+
   //frc::CameraServer::StartAutomaticCapture();
 
   rotation = gyro.GetRotation2d();
