@@ -8,6 +8,15 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 void Robot::RobotInit() {
+  //Set Up Cameras
+  camera1 = frc::CameraServer::StartAutomaticCapture(0);
+  camera2 = frc::CameraServer::StartAutomaticCapture(1);
+
+  //camera1.SetPath("/dev/video0");
+  //camera2.SetPath("/dev/video1");
+
+  cameraSelection = nt::NetworkTableInstance::GetDefault().GetTable("")->GetEntry("CameraSelection");
+
   //initialize Field2d
   frc::Field2d m_field;
 
@@ -96,16 +105,6 @@ void Robot::RobotInit() {
 
   secondaryShooter.Follow(mainShooter, true);
   intakeFollow.Follow(intakeMain, false);
-
-    //frc::AprilTagFieldLayout aprilTagFieldLayout = frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
-
-    //cameras.push_back(std::make_pair(pCamera1, robotToCam1));
-
-    /*photon::PhotonPoseEstimator poseEstimator(
-    aprilTagFieldLayout, photon::LOWEST_AMBIGUITY, std::move(pCamera1), robotToCam1);
-
-    poseEstimator.Update();*/
-
 } 
 
 /**
@@ -121,19 +120,6 @@ void Robot::RobotPeriodic() {
 
   //frc::CameraServer::StartAutomaticCapture();
 
-  /*m_odometry.Update(
-    gyro.GetRotation2d(),
-    frc::MecanumDriveWheelPositions{
-      units::meter_t{(((fl.GetSelectedSensorPosition(0))/4096)*0.635)},
-      units::meter_t{(((fr.GetSelectedSensorPosition(0))/4096)*-0.635)},
-      units::meter_t{(((bl.GetSelectedSensorPosition(0))/4096)*0.635)},
-      units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*-0.635)}
-    }
-  );
-
-  m_field.SetRobotPose(m_odometry.GetPose());
-  frc::SmartDashboard::PutData("Field", &m_field);*/
-  
   rotation = gyro.GetRotation2d();
 
   robotAngle = frc::InputModulus<units::degree_t>(
@@ -149,26 +135,32 @@ void Robot::RobotPeriodic() {
     }
   );
 
-  /*auto camera1Result = pCamera1.GetLatestResult();
+  auto camPoseEstimate = camPoseEstimator.Update();
 
-  if(camera1Result.MultiTagResult().result.isPresent && camera1Result.GetBestTarget().GetPoseAmbiguity() < 0.2){
-    units::second_t imageCaptureTime = camera1Result.GetTimestamp();
-    frc::Transform3d camToFieldTrans = camera1Result.MultiTagResult().result.best;
-    frc::Transform3d robotToFieldTrans = camToFieldTrans + robotToCam1;
-     
-    //m_poseEstimator.AddVisionMeasurement(robotToTargetTrans, imageCaptureTime); 
-  };*/
-
-  auto camPoseEstimate = poseEstimator.Update();
+  wpi::array visionStdDevs{camPoseEstimate->estimatedPose.X().value()/2, camPoseEstimate->estimatedPose.Y().value()/2, 100.0};
 
   if(camPoseEstimate){
-    m_poseEstimator.AddVisionMeasurement(camPoseEstimate->estimatedPose.ToPose2d(), camPoseEstimate->timestamp);
+    m_poseEstimator.AddVisionMeasurement(camPoseEstimate->estimatedPose.ToPose2d(), camPoseEstimate->timestamp, visionStdDevs);
   }
+
+  
+  //double camEstimatedX = camPoseEstimate->estimatedPose.X().value();
+  //double camEstimatedY = camPoseEstimate->estimatedPose.Y().value();
+  //double camEstimatedZ = camPoseEstimate->estimatedPose.Z().value();
+  //double camEstimatedBearing = (camPoseEstimate->estimatedPose.Rotation().Z().value() / Pi * 180);
+
+
+  //frc::SmartDashboard::PutNumber("camEstimatedX", camEstimatedX);
+  //frc::SmartDashboard::PutNumber("camEstimatedY", camEstimatedY);
+  //frc::SmartDashboard::PutNumber("camEstimatedZ",camEstimatedZ);
+  //frc::SmartDashboard::PutNumber("camEstimatedBearing",camEstimatedBearing);
+
+
+  
 
   m_field.SetRobotPose(m_poseEstimator.GetEstimatedPosition());
 
   frc::SmartDashboard::PutNumber("Heading", gyro.GetAngle());
-
 
   m_field.GetRobotPose();
 
@@ -399,6 +391,22 @@ if(LeftStickButton){
 
 }
 
+if(Dpad() == "Right"){
+
+  activeDriverCam = !activeDriverCam;
+
+  if(activeDriverCam){
+    //if driverCam State 1 switch to cam 1
+    cameraSelection.SetString(camera1.GetName());
+    //DriverFeed.SetSource(camera1);
+  }
+  else if(!activeDriverCam){
+    //if driverCam State 0 switch to cam 0
+    cameraSelection.SetString(camera2.GetName());
+    //DriverFeed.SetSource(camera2);
+  }
+}
+
 }
 
 
@@ -436,11 +444,8 @@ std::string Robot::Dpad(){
   else{
     return "None";
   }
-
-  //pCamera1.GetLatestResult();
-
-
 }
+
 void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {}

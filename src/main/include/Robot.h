@@ -54,6 +54,7 @@
 #include <photon/PhotonCamera.h>
 #include <photon/PhotonPoseEstimator.h>
 //#include "LimelightHelpers.h"
+#include <cameraserver/CameraServer.h>
 
 #include "wpi/SpanExtras.h"
 #include <wpi/SymbolExports.h>
@@ -85,6 +86,16 @@ class Robot : public frc::TimedRobot {
   const std::string kAutoNameDefault = "Default";
   const std::string kAutoNameCustom = "My Auto";
   std::string m_autoSelected;
+
+  //Setting Up Camera Streams
+  cs::UsbCamera camera1;
+  cs::UsbCamera camera2;
+
+  //cs::MjpegServer DriverFeed = frc::CameraServer::AddSwitchedCamera("DriverCamFeed");
+
+  nt::NetworkTableEntry cameraSelection;
+
+  bool activeDriverCam = false;
 
   //Main Drivetrain
   TalonSRX fl{6};
@@ -211,7 +222,7 @@ class Robot : public frc::TimedRobot {
 
     frc::AprilTagFieldLayout aprilTagFieldLayout = frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
 
-    photon::PhotonPoseEstimator poseEstimator{
-    aprilTagFieldLayout, photon::AVERAGE_BEST_TARGETS, std::move(pCamera1), robotToCam1};
+    photon::PhotonPoseEstimator camPoseEstimator{
+      aprilTagFieldLayout, photon::MULTI_TAG_PNP_ON_COPROCESSOR, std::move(pCamera1), robotToCam1};
 
 };
