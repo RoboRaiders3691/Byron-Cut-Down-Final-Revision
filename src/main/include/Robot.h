@@ -103,6 +103,8 @@ class Robot : public frc::TimedRobot {
   TalonSRX bl{1};
   TalonSRX br{0};
 
+  ctre::phoenix6::controls::MotionMagicVoltage m_request{0_tr};
+
   //Arm
   ctre::phoenix6::hardware::TalonFX al{7, "rio"};
   ctre::phoenix6::hardware::TalonFX ar{8, "rio"};
@@ -111,7 +113,6 @@ class Robot : public frc::TimedRobot {
   rev::CANSparkMax secondaryShooter{10, rev::CANSparkLowLevel::MotorType::kBrushless};
   rev::CANSparkMax mainShooter{13, rev::CANSparkLowLevel::MotorType::kBrushless};
   rev::CANSparkMax intakeMain{12, rev::CANSparkLowLevel::MotorType::kBrushless};
-  rev::CANSparkMax intakeFollow{15, rev::CANSparkLowLevel::MotorType::kBrushless};
 
   //Color Sensor V3
   static constexpr auto i2cPort = frc::I2C::kOnboard;
@@ -211,6 +212,7 @@ class Robot : public frc::TimedRobot {
    
   frc::Timer pickupTimer;
   frc::Timer shooterDelay;
+  frc::Timer autoTimer;
   bool pickupActive= 0;
 
   std::shared_ptr<nt::NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");

@@ -104,7 +104,6 @@ void Robot::RobotInit() {
   bl.ConfigMotionAcceleration(700, 10);
 
   secondaryShooter.Follow(mainShooter, true);
-  intakeFollow.Follow(intakeMain, false);
 } 
 
 /**
@@ -155,7 +154,7 @@ void Robot::RobotPeriodic() {
   //frc::SmartDashboard::PutNumber("camEstimatedZ",camEstimatedZ);
   //frc::SmartDashboard::PutNumber("camEstimatedBearing",camEstimatedBearing);
 
-
+  
   
 
   m_field.SetRobotPose(m_poseEstimator.GetEstimatedPosition());
@@ -191,14 +190,42 @@ void Robot::AutonomousInit() {
   } else {
     // Default Auto goes here
   }
+  autoTimer.Start();
 }
 
 void Robot::AutonomousPeriodic() {
+  /* Not gunna bother with this right now (to be used if mutiple auto positions are determined)
   if (m_autoSelected == kAutoNameCustom) {
     // Custom Auto goes here
   } else {
     // Default Auto goes here
   }
+  */
+
+  if(!autoTimer.HasElapsed(.25_s)){
+    ar.SetControl(m_request.WithPosition(39_tr));
+  }
+  else if(!autoTimer.HasElapsed(1.25_s)){
+    mainShooter.Set(-.75);
+  }
+  else if(!autoTimer.HasElapsed(2.25_s)){
+    intakeMain.Set(-.75);
+  }
+  else if(!autoTimer.HasElapsed(3.75_s)){
+    mainShooter.Set(0);
+    intakeMain.Set(0);
+  }
+  
+  
+  
+
+ 
+
+ 
+
+  
+
+
 }
 
 void Robot::TeleopInit() {
@@ -292,8 +319,7 @@ void Robot::TeleopPeriodic() {
   }
 
 
-  ctre::phoenix6::controls::MotionMagicVoltage m_request{0_tr};
-
+  
   if(RightBumper){
 
   ar.SetControl(m_request.WithPosition(39_tr));
@@ -319,7 +345,7 @@ void Robot::TeleopPeriodic() {
 //Intake Statements
 if(YButton){
   pickupTimer.Start();
-  intakeMain.Set(-.4);
+  intakeMain.Set(.6);
   pickupActive = 1;
   xbox.SetRumble(frc::GenericHID::kBothRumble, 1);
 }
@@ -371,7 +397,7 @@ else if(shooterDelay.HasElapsed(1_s)){
 if(!pickupActive){
 if(AButton){
   pickupTimer.Start();
-  intakeMain.Set(.4);
+  intakeMain.Set(-1);
 }
 if(pickupTimer.HasElapsed(.05_s)){
   intakeMain.Set(0);
@@ -445,6 +471,7 @@ std::string Robot::Dpad(){
     return "None";
   }
 }
+
 
 void Robot::DisabledInit() {}
 
