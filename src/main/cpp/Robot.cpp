@@ -435,7 +435,7 @@ void Robot::TeleopPeriodic() {
 
   frc::SmartDashboard::PutNumber("pGyroYaw", pGyroYaw);
 
-  shootangle = ((0.00002004*(pow(camtoTarget, 3)))+(-0.006823*(pow(camtoTarget, 2)))+(0.9338*camtoTarget)+19.34);
+  shootangle = ((0.00002004*(pow(camtoTarget, 3)))+(-0.006432*(pow(camtoTarget, 2)))+(0.8477*camtoTarget)+25.12);
 
 }
 
