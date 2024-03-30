@@ -342,100 +342,100 @@ void Robot::TeleopPeriodic() {
   }
 
 
-//Intake Statements
-if(YButton){
-  pickupTimer.Start();
-  intakeMain.Set(.6);
-  pickupActive = 1;
-  xbox.SetRumble(frc::GenericHID::kBothRumble, 1);
-}
-if(pickupTimer.HasElapsed(.6_s)){
-  intakeMain.Set(0);
-  pickupTimer.Stop();
-  pickupTimer.Reset();
-  pickupActive = 0;
-  xbox.SetRumble(frc::GenericHID::kBothRumble, 0);
-}
-
-//If intaking dont shoot, Shooter statements
-if(!pickupActive){
-if(StartButton){
-  mainShooter.Set(-.75);
-  shooterDelay.Start();
-}
-
-if(shooterDelay.HasElapsed(2_s)){
-  mainShooter.Set(0);
-  intakeMain.Set(0);
-  shooterDelay.Stop();
-  shooterDelay.Reset();
-}
-else if(shooterDelay.HasElapsed(1_s)){
-  intakeMain.Set(-.75);
-}
-}
-
-//If intaking dont shoot, Shooter statements
-if(!pickupActive){
-if(RightStickButton){
-  mainShooter.Set(-.75);
-  shooterDelay.Start();
-}
-
-if(shooterDelay.HasElapsed(2_s)){
-  mainShooter.Set(0);
-  intakeMain.Set(0);
-  shooterDelay.Stop();
-  shooterDelay.Reset();
-}
-else if(shooterDelay.HasElapsed(1_s)){
-  intakeMain.Set(-.65);
-}
-}
-
-//Push Note Back out of Intake
-if(!pickupActive){
-if(AButton){
-  pickupTimer.Start();
-  intakeMain.Set(-1);
-}
-if(pickupTimer.HasElapsed(.05_s)){
-  intakeMain.Set(0);
-  pickupTimer.Stop();
-  pickupTimer.Reset();
-}
-
-}
-
-
-if(xbox.GetBButtonReleased()){
-  flipDrive = flipDrive * -1;
-}
-
-if(LeftStickButton){
-  targetAngle = atan2((4 + 19.5),(0 - 17))*(180/Pi);
-
-}
-
-if(Dpad() == "Right"){
-
-  activeDriverCam = !activeDriverCam;
-
-  if(activeDriverCam){
-    //if driverCam State 1 switch to cam 1
-    cameraSelection.SetString(camera1.GetName());
-    //DriverFeed.SetSource(camera1);
+  //Intake Statements
+  if(YButton){
+    pickupTimer.Start();
+    intakeMain.Set(.6);
+    pickupActive = 1;
+    xbox.SetRumble(frc::GenericHID::kBothRumble, 1);
   }
-  else if(!activeDriverCam){
-    //if driverCam State 0 switch to cam 0
-    cameraSelection.SetString(camera2.GetName());
-    //DriverFeed.SetSource(camera2);
+  if(pickupTimer.HasElapsed(.6_s)){
+    intakeMain.Set(0);
+    pickupTimer.Stop();
+    pickupTimer.Reset();
+    pickupActive = 0;
+    xbox.SetRumble(frc::GenericHID::kBothRumble, 0);
   }
-}
 
-double pGyroYaw = pGyro.GetYaw();
+  //If intaking dont shoot, Shooter statements
+  if(!pickupActive){
+    if(StartButton){
+      mainShooter.Set(-.75);
+     shooterDelay.Start();
+    }
 
-frc::SmartDashboard::PutNumber("pGyroYaw", pGyroYaw);
+    if(shooterDelay.HasElapsed(2_s)){
+      mainShooter.Set(0);
+      intakeMain.Set(0);
+      shooterDelay.Stop();
+      shooterDelay.Reset();
+    }
+    else if(shooterDelay.HasElapsed(1_s)){
+      intakeMain.Set(-.75);
+    }
+  }
+
+  //If intaking dont shoot, Shooter statements
+  if(!pickupActive){
+    if(RightStickButton){
+      mainShooter.Set(-.75);
+      shooterDelay.Start();
+    }
+
+    if(shooterDelay.HasElapsed(2_s)){
+      mainShooter.Set(0);
+      intakeMain.Set(0);
+      shooterDelay.Stop();
+      shooterDelay.Reset();
+    }
+    else if(shooterDelay.HasElapsed(1_s)){
+      intakeMain.Set(-.65);
+    }
+  }
+
+  //Push Note Back out of Intake
+  if(!pickupActive){
+    if(AButton){
+      pickupTimer.Start();
+      intakeMain.Set(-1);
+    }
+    if(pickupTimer.HasElapsed(.05_s)){
+      intakeMain.Set(0);
+      pickupTimer.Stop();
+      pickupTimer.Reset();
+    }
+  }
+
+
+  if(xbox.GetBButtonReleased()){
+    flipDrive = flipDrive * -1;
+  }
+
+  if(LeftStickButton){
+    targetAngle = atan2((4 + 19.5),(0 - 17))*(180/Pi);
+  }
+
+  if(Dpad() == "Right"){
+
+    activeDriverCam = !activeDriverCam;
+
+    if(activeDriverCam){
+      //if driverCam State 1 switch to cam 1
+      cameraSelection.SetString(camera1.GetName());
+      //DriverFeed.SetSource(camera1);
+    }
+    else if(!activeDriverCam){
+      //if driverCam State 0 switch to cam 0
+      cameraSelection.SetString(camera2.GetName());
+      //DriverFeed.SetSource(camera2);
+    }
+  }
+
+  double pGyroYaw = pGyro.GetYaw();
+
+  frc::SmartDashboard::PutNumber("pGyroYaw", pGyroYaw);
+
+  shootangle = ((0.00002004*(pow(camtoTarget, 3)))+(-0.006823*(pow(camtoTarget, 2)))+(0.9338*camtoTarget)+19.34);
 
 }
 

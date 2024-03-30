@@ -123,6 +123,10 @@ class Robot : public frc::TimedRobot {
   double spdmult = 1;
   double topspeed = 1;
 
+  //Shooter Variables
+  double shootangle;
+  double camtoTarget;
+
   //Stick Vars
   double lx = 0.0;
   double ly = 0.0;
