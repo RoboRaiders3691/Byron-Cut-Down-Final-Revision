@@ -206,14 +206,16 @@ void Robot::AutonomousPeriodic() {
     ar.SetControl(m_request.WithPosition(39_tr));
   }
   else if(!autoTimer.HasElapsed(1.25_s)){
-    mainShooter.Set(-.75);
+    mainShooter.Set(.75);
   }
   else if(!autoTimer.HasElapsed(2.25_s)){
     intakeMain.Set(-.75);
+    intakeFollow.Set(-.75);
   }
   else if(!autoTimer.HasElapsed(3.75_s)){
     mainShooter.Set(0);
     intakeMain.Set(0);
+    intakeFollow.Set(0);
   }
   
   
@@ -346,11 +348,13 @@ void Robot::TeleopPeriodic() {
   if(YButton){
     pickupTimer.Start();
     intakeMain.Set(.6);
+    intakeFollow.Set(.6);
     pickupActive = 1;
     xbox.SetRumble(frc::GenericHID::kBothRumble, 1);
   }
   if(pickupTimer.HasElapsed(.6_s)){
     intakeMain.Set(0);
+    intakeFollow.Set(0);
     pickupTimer.Stop();
     pickupTimer.Reset();
     pickupActive = 0;
@@ -360,36 +364,40 @@ void Robot::TeleopPeriodic() {
   //If intaking dont shoot, Shooter statements
   if(!pickupActive){
     if(StartButton){
-      mainShooter.Set(-.75);
+      mainShooter.Set(.75);
      shooterDelay.Start();
     }
 
     if(shooterDelay.HasElapsed(2_s)){
       mainShooter.Set(0);
       intakeMain.Set(0);
+      intakeFollow.Set(0);
       shooterDelay.Stop();
       shooterDelay.Reset();
     }
     else if(shooterDelay.HasElapsed(1_s)){
-      intakeMain.Set(-.75);
+      intakeMain.Set(.75);
+      intakeFollow.Set(.75);
     }
   }
 
   //If intaking dont shoot, Shooter statements
   if(!pickupActive){
     if(RightStickButton){
-      mainShooter.Set(-.75);
+      mainShooter.Set(.75);
       shooterDelay.Start();
     }
 
     if(shooterDelay.HasElapsed(2_s)){
       mainShooter.Set(0);
       intakeMain.Set(0);
+      intakeFollow.Set(0);
       shooterDelay.Stop();
       shooterDelay.Reset();
     }
     else if(shooterDelay.HasElapsed(1_s)){
-      intakeMain.Set(-.65);
+      intakeMain.Set(.65);
+      intakeFollow.Set(.65);
     }
   }
 
@@ -397,10 +405,12 @@ void Robot::TeleopPeriodic() {
   if(!pickupActive){
     if(AButton){
       pickupTimer.Start();
-      intakeMain.Set(-1);
+      intakeMain.Set(.7);
+      intakeFollow.Set(.7);
     }
     if(pickupTimer.HasElapsed(.05_s)){
       intakeMain.Set(0);
+      intakeFollow.Set(0);
       pickupTimer.Stop();
       pickupTimer.Reset();
     }

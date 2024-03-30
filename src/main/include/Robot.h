@@ -106,13 +106,16 @@ class Robot : public frc::TimedRobot {
   ctre::phoenix6::controls::MotionMagicVoltage m_request{0_tr};
 
   //Arm
-  ctre::phoenix6::hardware::TalonFX al{7, "rio"};
-  ctre::phoenix6::hardware::TalonFX ar{8, "rio"};
+  ctre::phoenix6::hardware::TalonFX al{7};
+  ctre::phoenix6::hardware::TalonFX ar{8};
 
   //Shoot/Intake
   rev::CANSparkMax secondaryShooter{10, rev::CANSparkLowLevel::MotorType::kBrushless};
   rev::CANSparkMax mainShooter{13, rev::CANSparkLowLevel::MotorType::kBrushless};
-  rev::CANSparkMax intakeMain{12, rev::CANSparkLowLevel::MotorType::kBrushless};
+  //rev::CANSparkMax intakeMain{12, rev::CANSparkLowLevel::MotorType::kBrushless};
+  rev::CANSparkMax intakeFollow{15, rev::CANSparkLowLevel::MotorType::kBrushless};
+
+  ctre::phoenix6::hardware::TalonFX intakeMain{12};
 
   //Color Sensor V3
   static constexpr auto i2cPort = frc::I2C::kOnboard;
