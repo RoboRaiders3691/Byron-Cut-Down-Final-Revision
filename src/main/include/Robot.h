@@ -165,6 +165,8 @@ class Robot : public frc::TimedRobot {
   //Instance of Pigeon2 Class
   phoenix6::hardware::Pigeon2 gyro{24};
 
+  PigeonIMU pGyro{4};
+
   //Instance of Field2d and Rotation Objects
   frc::Field2d m_field;
 

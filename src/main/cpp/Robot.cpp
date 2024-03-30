@@ -433,6 +433,10 @@ if(Dpad() == "Right"){
   }
 }
 
+double pGyroYaw = pGyro.GetYaw();
+
+frc::SmartDashboard::PutNumber("pGyroYaw", pGyroYaw);
+
 }
 
 
