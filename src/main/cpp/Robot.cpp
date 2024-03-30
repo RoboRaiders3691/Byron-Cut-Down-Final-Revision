@@ -217,16 +217,6 @@ void Robot::AutonomousPeriodic() {
     intakeMain.Set(0);
     intakeFollow.Set(0);
   }
-  
-  
-  
-
- 
-
- 
-
-  
-
 
 }
 
@@ -441,11 +431,32 @@ void Robot::TeleopPeriodic() {
     }
   }
 
+
   double pGyroYaw = pGyro.GetYaw();
+
+  ((fl.GetSelectedSensorPosition(0))/4096);
+  
 
   frc::SmartDashboard::PutNumber("pGyroYaw", pGyroYaw);
 
-  shootangle = ((0.00002004*(pow(camtoTarget, 3)))+(-0.006823*(pow(camtoTarget, 2)))+(0.9338*camtoTarget)+19.34);
+  //limelight angle is 61 degrees
+  //smol: 1.5 inch radius, 9.42 in circumference
+  //beeg: 4 inch radius, 25.13 in circumference
+  //4:1 gear ratio
+  //100:1 gearbox
+  //400:1 full gear ratio
+  //current angle: pGyroYaw;
+  //1 turn = 0.9 degrees
+
+  bool hastarget = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv", 0);
+
+  shootangle = ((0.00002004*(pow(camtoTarget, 3)))+(-0.006432*(pow(camtoTarget, 2)))+(0.8477*camtoTarget)+25.12);
+
+  units::angle::turn_t offset{(pGyroYaw - shootangle)};
+
+
+
+  //ar.SetControl(m_request.WithPosition(offset));
 
 }
 
