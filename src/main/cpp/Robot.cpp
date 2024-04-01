@@ -119,6 +119,9 @@ void Robot::RobotPeriodic() {
 
   //frc::CameraServer::StartAutomaticCapture();
 
+  frc::SmartDashboard::PutNumber("Red", ColorSensor.GetRawColor().red);
+  frc::SmartDashboard::PutNumber("Green", ColorSensor.GetRawColor().green);
+  frc::SmartDashboard::PutNumber("Blue", ColorSensor.GetRawColor().blue);
   rotation = gyro.GetRotation2d();
 
   robotAngle = frc::InputModulus<units::degree_t>(
@@ -134,13 +137,13 @@ void Robot::RobotPeriodic() {
     }
   );
 
-  auto camPoseEstimate = camPoseEstimator.Update();
+  //auto camPoseEstimate = camPoseEstimator.Update();
 
-  wpi::array visionStdDevs{camPoseEstimate->estimatedPose.X().value()/2, camPoseEstimate->estimatedPose.Y().value()/2, 100.0};
+  //wpi::array visionStdDevs{camPoseEstimate->estimatedPose.X().value()/2, camPoseEstimate->estimatedPose.Y().value()/2, 100.0};
 
-  if(camPoseEstimate){
-    m_poseEstimator.AddVisionMeasurement(camPoseEstimate->estimatedPose.ToPose2d(), camPoseEstimate->timestamp, visionStdDevs);
-  }
+  //if(camPoseEstimate){
+   // m_poseEstimator.AddVisionMeasurement(camPoseEstimate->estimatedPose.ToPose2d(), camPoseEstimate->timestamp, visionStdDevs);
+  //}
 
   
   //double camEstimatedX = camPoseEstimate->estimatedPose.X().value();
@@ -155,8 +158,6 @@ void Robot::RobotPeriodic() {
   //frc::SmartDashboard::PutNumber("camEstimatedBearing",camEstimatedBearing);
 
   
-  
-
   m_field.SetRobotPose(m_poseEstimator.GetEstimatedPosition());
 
   frc::SmartDashboard::PutNumber("Heading", gyro.GetAngle());
@@ -191,6 +192,7 @@ void Robot::AutonomousInit() {
     // Default Auto goes here
   }
   autoTimer.Start();
+  autoTimer.Reset();
 }
 
 void Robot::AutonomousPeriodic() {
@@ -202,21 +204,77 @@ void Robot::AutonomousPeriodic() {
   }
   */
 
+  //basic in-place shooting with note in intake 
   if(!autoTimer.HasElapsed(.25_s)){
     ar.SetControl(m_request.WithPosition(39_tr));
   }
   else if(!autoTimer.HasElapsed(1.25_s)){
-    mainShooter.Set(.75);
+    mainShooter.Set(.7);
   }
   else if(!autoTimer.HasElapsed(2.25_s)){
-    intakeMain.Set(-.75);
-    intakeFollow.Set(-.75);
+    intakeMain.Set(.75);
+    intakeFollow.Set(.75);
   }
   else if(!autoTimer.HasElapsed(3.75_s)){
     mainShooter.Set(0);
     intakeMain.Set(0);
     intakeFollow.Set(0);
+    ar.SetControl(m_request.WithPosition(1_tr));
   }
+  else if(!autoTimer.HasElapsed(4.25_s)){
+    intakeMain.Set(.5);
+    intakeFollow.Set(.3);
+  }
+  else if(!autoTimer.HasElapsed(6.5_s)){
+    fl.Set(ControlMode::PercentOutput, .23);
+    fr.Set(ControlMode::PercentOutput, -.3);
+    bl.Set(ControlMode::PercentOutput, .23);
+    br.Set(ControlMode::PercentOutput, -.3);
+  }
+  else if((ColorSensor.GetRawColor().red > 1000 && ColorSensor.GetRawColor().green > 1000 && ColorSensor.GetRawColor().blue > 1000 ) || !autoTimer.HasElapsed(7_s)){
+    intakeMain.Set(0);
+    intakeFollow.Set(0);
+    fl.Set(ControlMode::PercentOutput, .0);
+    fr.Set(ControlMode::PercentOutput, .0);
+    bl.Set(ControlMode::PercentOutput, .0);
+    br.Set(ControlMode::PercentOutput, .0);
+  }
+  else if(!autoTimer.HasElapsed(8.75_s)){
+    fl.Set(ControlMode::PercentOutput, -.23);
+    fr.Set(ControlMode::PercentOutput, .3);
+    bl.Set(ControlMode::PercentOutput, -.23);
+    br.Set(ControlMode::PercentOutput, .3);
+  }
+    else if(!autoTimer.HasElapsed(9_s)){
+    fl.Set(ControlMode::PercentOutput, .0);
+    fr.Set(ControlMode::PercentOutput, .0);
+    bl.Set(ControlMode::PercentOutput, .0);
+    br.Set(ControlMode::PercentOutput, .0);
+  }
+  else if(!autoTimer.HasElapsed(9.5_s)){
+    ar.SetControl(m_request.WithPosition(39_tr));
+  }
+  else if(!autoTimer.HasElapsed(10.75_s)){
+    mainShooter.Set(.7);
+  }
+  else if(!autoTimer.HasElapsed(11.75_s)){
+    intakeMain.Set(.75);
+    intakeFollow.Set(.75);
+  }
+  else if(!autoTimer.HasElapsed(13.5_s)){
+    mainShooter.Set(0);
+    intakeMain.Set(0);
+    intakeFollow.Set(0);
+    ar.SetControl(m_request.WithPosition(1_tr));
+  }
+
+  
+  
+
+
+
+
+
 
 }
 
@@ -244,8 +302,6 @@ void Robot::TeleopPeriodic() {
   BButton = xbox.GetBButton();
   XButton = xbox.GetXButton();
   YButton = xbox.GetYButton();
-
-
 
   LeftTrigger = xbox.GetLeftTriggerAxis();
   LeftBumper = xbox.GetLeftBumper();
@@ -291,7 +347,7 @@ void Robot::TeleopPeriodic() {
 
 
 
-
+  //drive code
   if(ly>=0.1 || ly<=-0.1 || lx>=0.1 ||lx<=-0.1){
     fl.Set(ControlMode::PercentOutput, flipDrive*spd*((sin(-direction+(.25*Pi)))*magnitude + flipDrive*turn));
     fr.Set(ControlMode::PercentOutput, -flipDrive*spd*((sin(-direction-(.25*Pi)))*magnitude - flipDrive*turn));
@@ -311,21 +367,24 @@ void Robot::TeleopPeriodic() {
   }
 
 
-  
+  //arm controls
   if(RightBumper){
 
   ar.SetControl(m_request.WithPosition(39_tr));
 
   }
+
   if(BackButton){
+
     ar.SetControl(m_request.WithPosition(25_tr));
 
   }
 
   if(LeftBumper){
-  ar.SetControl(m_request.WithPosition(1_tr));
-  }
 
+  ar.SetControl(m_request.WithPosition(1_tr));
+
+  }
 
   if(XButton){
   
@@ -337,12 +396,12 @@ void Robot::TeleopPeriodic() {
   //Intake Statements
   if(YButton){
     pickupTimer.Start();
-    intakeMain.Set(.6);
-    intakeFollow.Set(.6);
+    intakeMain.Set(.5);
+    intakeFollow.Set(.3);
     pickupActive = 1;
     xbox.SetRumble(frc::GenericHID::kBothRumble, 1);
   }
-  if(pickupTimer.HasElapsed(.6_s)){
+  if((ColorSensor.GetRawColor().red > 1000 && ColorSensor.GetRawColor().green > 1000 && ColorSensor.GetRawColor().blue > 1000 )){
     intakeMain.Set(0);
     intakeFollow.Set(0);
     pickupTimer.Stop();
@@ -350,8 +409,20 @@ void Robot::TeleopPeriodic() {
     pickupActive = 0;
     xbox.SetRumble(frc::GenericHID::kBothRumble, 0);
   }
+  
+  if(pickupTimer.HasElapsed(2.3_s)){
+    intakeMain.Set(0);
+    intakeFollow.Set(0);
+    pickupActive = 0;
+    xbox.SetRumble(frc::GenericHID::kBothRumble, 0);
+  }
+  else if(pickupTimer.HasElapsed(2_s)){
+    intakeMain.Set(-.3);
+    intakeFollow.Set(-.3);
+  }
 
-  //If intaking dont shoot, Shooter statements
+
+  //If intaking, dont shoot; Shooter statements
   if(!pickupActive){
     if(StartButton){
       mainShooter.Set(.75);
@@ -371,7 +442,7 @@ void Robot::TeleopPeriodic() {
     }
   }
 
-  //If intaking dont shoot, Shooter statements
+  //If intaking, dont shoot; Shooter statements
   if(!pickupActive){
     if(RightStickButton){
       mainShooter.Set(.75);
@@ -395,8 +466,8 @@ void Robot::TeleopPeriodic() {
   if(!pickupActive){
     if(AButton){
       pickupTimer.Start();
-      intakeMain.Set(.7);
-      intakeFollow.Set(.7);
+      intakeMain.Set(-.7);
+      intakeFollow.Set(-.7);
     }
     if(pickupTimer.HasElapsed(.05_s)){
       intakeMain.Set(0);
@@ -462,39 +533,28 @@ void Robot::TeleopPeriodic() {
 
 
 std::string Robot::Dpad(){
-  xbox.GetPOV();
-
   //Check Up Down Left and Right
-  if(xbox.GetPOV() == 0){
-    return "Up";
+  switch(xbox.GetPOV()){
+    case 0:
+      return "Up"; break;
+    case 180:
+      return "Down"; break;
+    case 270:
+      return "Left"; break;
+    case 90:
+      return "Right"; break;
+    case 45:
+      return "UpRight"; break;
+    case 135:
+      return "DownRight"; break;
+    case 225:
+      return "DownLeft"; break;
+    case 315:
+      return "UpLeft"; break;
+    default:
+      return "None";
   }
-  else if(xbox.GetPOV() == 180){
-    return "Down";
-  }
-  else if(xbox.GetPOV() == 270){
-    return "Left";
-  }
-  else if(xbox.GetPOV() == 90){
-    return "Right";
-  }
-
-  //Check the diagonal states
-
-  if(xbox.GetPOV() == 45){
-    return "UpRight";
-  }
-  else if(xbox.GetPOV() == 135){
-    return "DownRight";
-  }
-  else if(xbox.GetPOV() == 225){
-    return "DownLeft";
-  }
-  else if(xbox.GetPOV() == 315){
-    return "UpLeft";
-  }
-  else{
-    return "None";
-  }
+  
 }
 
 
