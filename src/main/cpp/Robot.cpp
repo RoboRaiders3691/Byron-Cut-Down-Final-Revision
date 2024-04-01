@@ -323,6 +323,9 @@ void Robot::TeleopPeriodic() {
   magnitude = hypot(lx,ly);
   turn = rx*0.7;
 
+  double pGyroYaw = pGyro.GetYaw();
+
+  frc::SmartDashboard::PutNumber("pGyroYaw", pGyroYaw);
 
   //Half Trapazoidal Acceleration 
 
@@ -368,11 +371,26 @@ void Robot::TeleopPeriodic() {
     br.Set(ControlMode::PercentOutput, 0);
   }
 
+  camtoTarget = botpose[0];
+
+  bool hastarget = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv", 0);
+
+  //shootangle = ((0.00002004*(pow(camtoTarget, 3)))+(-0.006432*(pow(camtoTarget, 2)))+(0.8477*camtoTarget)+25.12);
+  shootangle = ((1.223*(pow(camtoTarget, 3)))+(-9.969*(pow(camtoTarget, 2)))+(33.37*camtoTarget)+25.12);
+
+  frc::SmartDashboard::PutNumber("shootangle", shootangle);
+
+  //units::angle::turn_t offset{(1.1111111111111111111*(pGyroYaw - shootangle))};
+  units::angle::turn_t offset{(1.11111*shootangle)+1};
+  //frc::SmartDashboard::PutNumber("offset", (1.1111111111111111111*(pGyroYaw - shootangle)));
 
   //arm controls
   if(RightBumper){
 
-  ar.SetControl(m_request.WithPosition(39_tr));
+  //ar.SetControl(m_request.WithPosition(39_tr));
+
+  ar.SetControl(m_request.WithPosition(offset));
+    
 
   }
 
@@ -504,10 +522,6 @@ void Robot::TeleopPeriodic() {
     }
   }
 
-  double pGyroYaw = pGyro.GetYaw();
-
-  frc::SmartDashboard::PutNumber("pGyroYaw", pGyroYaw);
-
   //limelight angle is 61 degrees
   //smol: 1.5 inch radius, 9.42 in circumference
   //beeg: 4 inch radius, 25.13 in circumference
@@ -516,16 +530,6 @@ void Robot::TeleopPeriodic() {
   //400:1 full gear ratio
   //current angle: pGyroYaw;
   //1 turn = 0.9 degrees
-
-  camtoTarget = botpose[0];
-
-  bool hastarget = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv", 0);
-
-  shootangle = ((0.00002004*(pow(camtoTarget, 3)))+(-0.006432*(pow(camtoTarget, 2)))+(0.8477*camtoTarget)+25.12);
-
-  units::angle::turn_t offset{(1.1111111111111111111*(pGyroYaw - shootangle))};
-
-  //ar.SetControl(m_request.WithPosition(offset));
 
 }
 

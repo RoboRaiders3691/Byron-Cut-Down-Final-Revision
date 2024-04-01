@@ -233,7 +233,7 @@ class Robot : public frc::TimedRobot {
 
   std::shared_ptr<nt::NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
 
-  int flipDrive = 1;
+  int flipDrive = -1;
 
   double targetAngle = 0;
 
