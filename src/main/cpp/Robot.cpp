@@ -378,10 +378,11 @@ void Robot::TeleopPeriodic() {
   //shootangle = ((0.00002004*(pow(camtoTarget, 3)))+(-0.006432*(pow(camtoTarget, 2)))+(0.8477*camtoTarget)+25.12);
   shootangle = ((1.223*(pow(camtoTarget, 3)))+(-9.969*(pow(camtoTarget, 2)))+(33.37*camtoTarget)+25.12);
 
-  frc::SmartDashboard::PutNumber("shootangle", shootangle);
+  frc::SmartDashboard::PutNumber("camtotarget", camtoTarget * 39.37);
 
   //units::angle::turn_t offset{(1.1111111111111111111*(pGyroYaw - shootangle))};
   units::angle::turn_t offset{(1.11111*shootangle)+1};
+  frc::SmartDashboard::PutNumber("shootangle", (1.11111*shootangle)+1);
   //frc::SmartDashboard::PutNumber("offset", (1.1111111111111111111*(pGyroYaw - shootangle)));
 
   //arm controls
