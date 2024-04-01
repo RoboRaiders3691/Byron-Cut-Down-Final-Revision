@@ -113,9 +113,9 @@ class Robot : public frc::TimedRobot {
   rev::CANSparkMax secondaryShooter{10, rev::CANSparkLowLevel::MotorType::kBrushless};
   rev::CANSparkMax mainShooter{13, rev::CANSparkLowLevel::MotorType::kBrushless};
   //rev::CANSparkMax intakeMain{12, rev::CANSparkLowLevel::MotorType::kBrushless};
-  rev::CANSparkMax intakeFollow{15, rev::CANSparkLowLevel::MotorType::kBrushless};
+  rev::CANSparkMax intakeFollow{12, rev::CANSparkLowLevel::MotorType::kBrushless};
 
-  ctre::phoenix6::hardware::TalonFX intakeMain{12};
+  ctre::phoenix6::hardware::TalonFX intakeMain{15};
 
   //Color Sensor V3
   static constexpr auto i2cPort = frc::I2C::kOnboard;
@@ -210,7 +210,7 @@ class Robot : public frc::TimedRobot {
 
   //Instance of PhotonCamera
 
-  photon::PhotonCamera pCamera1{"Microsoft_LifeCam_HD-3000"};
+ // photon::PhotonCamera pCamera1{"Microsoft_LifeCam_HD-3000"};
 
 
   //offset currently undecided
@@ -233,7 +233,8 @@ class Robot : public frc::TimedRobot {
 
     frc::AprilTagFieldLayout aprilTagFieldLayout = frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
 
-    photon::PhotonPoseEstimator camPoseEstimator{
-      aprilTagFieldLayout, photon::MULTI_TAG_PNP_ON_COPROCESSOR, std::move(pCamera1), robotToCam1};
+    //photon::PhotonPoseEstimator camPoseEstimator{
+      //aprilTagFieldLayout, photon::MULTI_TAG_PNP_ON_COPROCESSOR, std::move(pCamera1), robotToCam1};
+
 
 };
