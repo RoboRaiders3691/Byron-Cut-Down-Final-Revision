@@ -525,8 +525,6 @@ void Robot::TeleopPeriodic() {
 
   units::angle::turn_t offset{(1.1111111111111111111*(pGyroYaw - shootangle))};
 
-
-
   //ar.SetControl(m_request.WithPosition(offset));
 
 }
