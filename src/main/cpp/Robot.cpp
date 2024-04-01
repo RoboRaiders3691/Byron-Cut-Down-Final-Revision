@@ -137,6 +137,8 @@ void Robot::RobotPeriodic() {
     }
   );
 
+  frc::SmartDashboard::PutData("Field", &m_field);
+
   //auto camPoseEstimate = camPoseEstimator.Update();
 
   //wpi::array visionStdDevs{camPoseEstimate->estimatedPose.X().value()/2, camPoseEstimate->estimatedPose.Y().value()/2, 100.0};
