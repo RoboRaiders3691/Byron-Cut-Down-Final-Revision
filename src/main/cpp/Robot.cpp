@@ -504,11 +504,7 @@ void Robot::TeleopPeriodic() {
     }
   }
 
-
   double pGyroYaw = pGyro.GetYaw();
-
-  ((fl.GetSelectedSensorPosition(0))/4096);
-
 
   frc::SmartDashboard::PutNumber("pGyroYaw", pGyroYaw);
 
@@ -521,7 +517,7 @@ void Robot::TeleopPeriodic() {
   //current angle: pGyroYaw;
   //1 turn = 0.9 degrees
 
-  botpose[1];
+  camtoTarget = botpose[0];
 
   bool hastarget = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv", 0);
 
