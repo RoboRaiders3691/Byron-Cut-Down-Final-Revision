@@ -382,7 +382,8 @@ void Robot::TeleopPeriodic() {
 
   //units::angle::turn_t offset{(1.1111111111111111111*(pGyroYaw - shootangle))};
   units::angle::turn_t offset{(1.11111*shootangle)+1};
-  frc::SmartDashboard::PutNumber("shootangle", (1.11111*shootangle)+1);
+  frc::SmartDashboard::PutNumber("shootangle", shootangle);
+  frc::SmartDashboard::PutNumber("shootangleoffset", (1.11111*shootangle)+1);
   //frc::SmartDashboard::PutNumber("offset", (1.1111111111111111111*(pGyroYaw - shootangle)));
 
   //arm controls
