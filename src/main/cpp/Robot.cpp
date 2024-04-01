@@ -115,7 +115,7 @@ void Robot::RobotInit() {
  * LiveWindow and SmartDashboard integrated updating.
  */
 void Robot::RobotPeriodic() {
-  botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("targetpose_robotspace",std::vector<double>(6));
+  botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("targetpose_cameraspace",std::vector<double>(6));
 
   //frc::CameraServer::StartAutomaticCapture();
 
