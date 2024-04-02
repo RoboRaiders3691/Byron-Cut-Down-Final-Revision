@@ -130,7 +130,7 @@ void Robot::RobotPeriodic() {
   robotAngle = frc::InputModulus<units::degree_t>(
     rotation.Degrees(), halfangle2, halfangle);
 
-    robotAngle = units::angle::degree_t(robotAngle.value()-(time.value()/10));
+    robotAngle = units::angle::degree_t(robotAngle.value()-(time.value()/5));
 
    m_poseEstimator.Update(
     frc::Rotation2d{robotAngle},
