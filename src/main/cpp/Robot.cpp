@@ -115,7 +115,7 @@ void Robot::RobotInit() {
  * LiveWindow and SmartDashboard integrated updating.
  */
 void Robot::RobotPeriodic() {
-  botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("targetpose_cameraspace",std::vector<double>(6));
+  botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose_wpired",std::vector<double>(6));
 
   //frc::CameraServer::StartAutomaticCapture();
 
@@ -372,16 +372,23 @@ void Robot::TeleopPeriodic() {
   }
 
   camtoTarget = botpose[0];
+  camtoTarget = camtoTarget - 0.2;
+  //target X 1.442593
+  //target Y 1.451102
+  double targetdist = sqrt((pow((botpose[1]-5.6), 2)+pow(camtoTarget, 2)));
 
   bool hastarget = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv", 0);
 
   //shootangle = ((0.00002004*(pow(camtoTarget, 3)))+(-0.006432*(pow(camtoTarget, 2)))+(0.8477*camtoTarget)+25.12);
-  shootangle = ((1.223*(pow(camtoTarget, 3)))+(-9.969*(pow(camtoTarget, 2)))+(33.37*camtoTarget)+25.12);
+  
+  shootangle = ((1.223*(pow(targetdist, 3)))+(-9.969*(pow(targetdist, 2)))+(33.37*targetdist)+25.12);
 
-  frc::SmartDashboard::PutNumber("camtotarget", camtoTarget * 39.37);
+  double robotshootangle = (robotAngle - atan(camtoTarget/(botpose[1]-5.6)));
+
+  frc::SmartDashboard::PutNumber("camtotarget", camtoTarget);
 
   //units::angle::turn_t offset{(1.1111111111111111111*(pGyroYaw - shootangle))};
-  units::angle::turn_t offset{(1.11111*shootangle)+1};
+  units::angle::turn_t offset{(1.11111*shootangle)-15};
   frc::SmartDashboard::PutNumber("shootangle", shootangle);
   frc::SmartDashboard::PutNumber("shootangleoffset", (1.11111*shootangle)+1);
   //frc::SmartDashboard::PutNumber("offset", (1.1111111111111111111*(pGyroYaw - shootangle)));
@@ -392,7 +399,6 @@ void Robot::TeleopPeriodic() {
   //ar.SetControl(m_request.WithPosition(39_tr));
 
   ar.SetControl(m_request.WithPosition(offset));
-    
 
   }
 
