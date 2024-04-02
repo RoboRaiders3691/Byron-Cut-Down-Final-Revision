@@ -393,10 +393,16 @@ void Robot::TeleopPeriodic() {
 
   camtoTarget = botpose_red[0];
   camtoTarget = camtoTarget - 0.2;
+  double targetdist;
 
-  //target X 1.442593
-  //target Y 1.451102
-  double targetdist = sqrt((pow((robotX.value()-5.6), 2)+pow(robotY.value(), 2)));
+  //target X 16.5608
+  //target Y 5.5372
+
+  if(nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tid", 0.00) == 4){
+    targetdist = sqrt(pow((robotX.value()-5.5372), 2)+pow(16.5608-robotY.value(), 2));
+  }else{
+    targetdist = sqrt(pow((robotX.value()-5.5372), 2)+pow(robotY.value(), 2));
+  };
 
   bool hastarget = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv", 0);
 
@@ -411,7 +417,7 @@ void Robot::TeleopPeriodic() {
     shootangle = 1;
   }
 
-  double robotshootangle = (robotAngle.value() - atan(robotY.value()/(robotX.value()-5.6)));
+  double robotshootangle = (robotAngle.value() - atan(robotY.value()/(robotX.value()-5.5372)));
 
   frc::SmartDashboard::PutNumber("camtotarget", camtoTarget);
 
