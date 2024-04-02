@@ -162,7 +162,8 @@ class Robot : public frc::TimedRobot {
   double magnitude = 0.0;
   double turn = 0.0;
 
-  std::vector<double> botpose;
+  std::vector<double> botpose_red;
+  std::vector<double> botpose_blue;
 
   //Variable for Pi
   const double Pi = 3.1415926535;
