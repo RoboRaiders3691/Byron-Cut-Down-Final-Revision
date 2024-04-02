@@ -385,6 +385,8 @@ void Robot::TeleopPeriodic() {
   
   if(shootangle > 40){
     shootangle = 39;
+  }else if(shootangle < 1){
+    shootangle = 1;
   }
 
   double robotshootangle = (robotAngle.value() - atan(camtoTarget/(botpose[1]-5.6)));
