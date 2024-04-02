@@ -34,6 +34,7 @@
 #include "ctre/phoenix6/Pigeon2.hpp"
 #include "ctre/phoenix6/configs/Configurator.hpp"
 #include "ctre/phoenix6/configs/Configs.hpp"
+#include "ctre/phoenix/sensors/PigeonIMU.h"
 
 #include "rev/CANSparkMax.h"
 #include "rev/CANSparkLowLevel.h"
@@ -163,7 +164,9 @@ class Robot : public frc::TimedRobot {
   double magnitude = 0.0;
   double turn = 0.0;
 
-  std::vector<double> botpose;
+  std::vector<double> botpose_red;
+  std::vector<double> botpose_blue;
+
   //Variable for Pi
   const double Pi = 3.1415926535;
 
@@ -173,7 +176,13 @@ class Robot : public frc::TimedRobot {
   //Instance of Pigeon2 Class
   phoenix6::hardware::Pigeon2 gyro{24};
 
-  //PigeonIMU pGyro{4};
+  //Lift motors
+  TalonSRX cl{13};
+  TalonSRX cr{14};
+
+  PigeonIMU pGyro = PigeonIMU(cr); /* Pigeon is ribbon cabled to the specified TalonSRX. */
+
+  //PigeonIMU pigeon = new PigeonIMU(14);
 
   //Instance of Field2d and Rotation Objects
   frc::Field2d m_field;
@@ -206,7 +215,7 @@ class Robot : public frc::TimedRobot {
       units::meter_t{(((bl.GetSelectedSensorPosition(0))/4096)*0.635)},
       units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*-0.635)}
     },
-    frc::Pose2d{0_m, 0_m, 0_rad}
+    frc::Pose2d{6_m, 6_m, 0_rad}
   };
 
   //Instance of PhotonCamera
@@ -227,7 +236,7 @@ class Robot : public frc::TimedRobot {
 
   std::shared_ptr<nt::NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
 
-  int flipDrive = 1;
+  int flipDrive = -1;
 
   double targetAngle = 0;
 

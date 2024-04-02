@@ -115,18 +115,23 @@ void Robot::RobotInit() {
  * LiveWindow and SmartDashboard integrated updating.
  */
 void Robot::RobotPeriodic() {
-  botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose_wpired",std::vector<double>(6));
-
+  botpose_red = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose_wpired",std::vector<double>(6));
+  botpose_blue = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose_wpiblue",std::vector<double>(6));
+  bool llhastarget = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv",0.0);
+  
   //frc::CameraServer::StartAutomaticCapture();
 
   //frc::SmartDashboard::PutNumber("Red", ColorSensor.GetRawColor().red);
   //frc::SmartDashboard::PutNumber("Green", ColorSensor.GetRawColor().green);
   //frc::SmartDashboard::PutNumber("Blue", ColorSensor.GetRawColor().blue);
   rotation = gyro.GetRotation2d();
+  units::second_t time = frc::Timer::GetFPGATimestamp();
 
   robotAngle = frc::InputModulus<units::degree_t>(
     rotation.Degrees(), halfangle2, halfangle);
-  
+
+    robotAngle = units::angle::degree_t(robotAngle.value()-(time.value()/5));
+
    m_poseEstimator.Update(
     frc::Rotation2d{robotAngle},
     frc::MecanumDriveWheelPositions{
@@ -136,6 +141,17 @@ void Robot::RobotPeriodic() {
       units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*-0.635)}
     }
   );
+units::meter_t botX{botpose_blue[0]};
+units::meter_t botY{botpose_blue[1]};
+
+frc::Pose2d visionMeasurement2d(botX,botY,frc::Rotation2d{robotAngle});
+
+ m_poseEstimator.AddVisionMeasurement(
+  visionMeasurement2d,
+  frc::Timer::GetFPGATimestamp()
+);
+
+  frc::SmartDashboard::PutData("Field", &m_field);
 
   //auto camPoseEstimate = camPoseEstimator.Update();
 
@@ -276,6 +292,7 @@ void Robot::TeleopInit() {
     },
     frc::Pose2d(0_m, 0_m, 0_rad)
   );*/
+  gyro.Reset();
 }
 
 void Robot::TeleopPeriodic() {
@@ -308,6 +325,9 @@ void Robot::TeleopPeriodic() {
   magnitude = hypot(lx,ly);
   turn = rx*0.7;
 
+  double pGyroYaw = pGyro.GetYaw();
+
+  frc::SmartDashboard::PutNumber("pGyroYaw", pGyroYaw);
 
   //Half Trapazoidal Acceleration 
 
@@ -353,11 +373,53 @@ void Robot::TeleopPeriodic() {
     br.Set(ControlMode::PercentOutput, 0);
   }
 
+  frc::Pose2d robotPose = m_field.GetRobotPose();
+
+  units::length::meter_t robotX = robotPose.X();
+  units::length::meter_t robotY = robotPose.Y();
+
+  camtoTarget = botpose_red[0];
+  camtoTarget = camtoTarget - 0.2;
+  double targetdist;
+
+  //target X 16.5608
+  //target Y 5.5372
+
+  if(nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tid", 0.00) == 4){
+    targetdist = sqrt(pow((robotX.value()-5.5372), 2)+pow(16.5608-robotY.value(), 2));
+  }else{
+    targetdist = sqrt(pow((robotX.value()-5.5372), 2)+pow(robotY.value(), 2));
+  };
+
+  bool hastarget = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv", 0);
+
+  //shootangle = ((0.00002004*(pow(camtoTarget, 3)))+(-0.006432*(pow(camtoTarget, 2)))+(0.8477*camtoTarget)+25.12);
+  
+  //shootangle = ((1.223*(pow(camtoTarget, 3)))+(-9.969*(pow(camtoTarget, 2)))+(33.37*camtoTarget)+25.12);
+  shootangle = ((1.223*(pow(targetdist, 3)))+(-9.969*(pow(targetdist, 2)))+(33.37*targetdist)+25.12);
+  
+  if(shootangle > 90){
+    shootangle = 90;
+  }else if(shootangle < 1){
+    shootangle = 1;
+  }
+
+  double robotshootangle = (robotAngle.value() - atan(robotY.value()/(robotX.value()-5.5372)));
+
+  frc::SmartDashboard::PutNumber("camtotarget", camtoTarget);
+
+  //units::angle::turn_t offset{(1.1111111111111111111*(pGyroYaw - shootangle))};
+  units::angle::turn_t offset{(1.11111*shootangle)-15};
+  frc::SmartDashboard::PutNumber("shootangle", shootangle);
+  frc::SmartDashboard::PutNumber("shootangleoffset", (1.11111*shootangle)+1);
+  //frc::SmartDashboard::PutNumber("offset", (1.1111111111111111111*(pGyroYaw - shootangle)));
 
   //arm controls
   if(RightBumper){
 
-  ar.SetControl(m_request.WithPosition(39_tr));
+  //ar.SetControl(m_request.WithPosition(39_tr));
+
+  ar.SetControl(m_request.WithPosition(offset));
 
   }
 
@@ -489,15 +551,6 @@ void Robot::TeleopPeriodic() {
     }
   }
 
-
-  double pGyroYaw = 12;
-  //temp value pGyro.GetYaw();
-
-  ((fl.GetSelectedSensorPosition(0))/4096);
-  
-
-  frc::SmartDashboard::PutNumber("pGyroYaw", pGyroYaw);
-
   //limelight angle is 61 degrees
   //smol: 1.5 inch radius, 9.42 in circumference
   //beeg: 4 inch radius, 25.13 in circumference
@@ -506,16 +559,6 @@ void Robot::TeleopPeriodic() {
   //400:1 full gear ratio
   //current angle: pGyroYaw;
   //1 turn = 0.9 degrees
-
-  bool hastarget = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv", 0);
-
-  shootangle = ((0.00002004*(pow(camtoTarget, 3)))+(-0.006432*(pow(camtoTarget, 2)))+(0.8477*camtoTarget)+25.12);
-
-  units::angle::turn_t offset{(pGyroYaw - shootangle)};
-
-
-
-  //ar.SetControl(m_request.WithPosition(offset));
 
 }
 
