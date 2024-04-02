@@ -115,13 +115,13 @@ void Robot::RobotInit() {
  * LiveWindow and SmartDashboard integrated updating.
  */
 void Robot::RobotPeriodic() {
-  botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("targetpose_robotspace",std::vector<double>(6));
+  botpose = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose_wpired",std::vector<double>(6));
 
   //frc::CameraServer::StartAutomaticCapture();
 
-  frc::SmartDashboard::PutNumber("Red", ColorSensor.GetRawColor().red);
-  frc::SmartDashboard::PutNumber("Green", ColorSensor.GetRawColor().green);
-  frc::SmartDashboard::PutNumber("Blue", ColorSensor.GetRawColor().blue);
+  //frc::SmartDashboard::PutNumber("Red", ColorSensor.GetRawColor().red);
+  //frc::SmartDashboard::PutNumber("Green", ColorSensor.GetRawColor().green);
+  //frc::SmartDashboard::PutNumber("Blue", ColorSensor.GetRawColor().blue);
   rotation = gyro.GetRotation2d();
 
   robotAngle = frc::InputModulus<units::degree_t>(
@@ -204,6 +204,22 @@ void Robot::AutonomousPeriodic() {
   }
   */
 
+  xRobotError = targetXPose - xPoseBlue;
+  
+  if(abs(xRobotError) < 1){
+    autoSpeedMulti = xRobotError;
+  }
+  else{
+    autoSpeedMulti = 1;
+  }
+
+  if(!(abs(xRobotError) < .2)){
+    fl.Set(ControlMode::PercentOutput, autoSpeedMulti*.23);
+    fr.Set(ControlMode::PercentOutput, autoSpeedMulti*-.3);
+    bl.Set(ControlMode::PercentOutput, autoSpeedMulti*.23);
+    br.Set(ControlMode::PercentOutput, autoSpeedMulti*-.3);
+  }
+
   //basic in-place shooting with note in intake 
   if(!autoTimer.HasElapsed(.25_s)){
     ar.SetControl(m_request.WithPosition(39_tr));
@@ -224,32 +240,12 @@ void Robot::AutonomousPeriodic() {
   else if(!autoTimer.HasElapsed(4.25_s)){
     intakeMain.Set(.5);
     intakeFollow.Set(.3);
+    targetXPose = 10;
   }
-  else if(!autoTimer.HasElapsed(6.5_s)){
-    fl.Set(ControlMode::PercentOutput, .23);
-    fr.Set(ControlMode::PercentOutput, -.3);
-    bl.Set(ControlMode::PercentOutput, .23);
-    br.Set(ControlMode::PercentOutput, -.3);
-  }
-  else if((ColorSensor.GetRawColor().red > 1000 && ColorSensor.GetRawColor().green > 1000 && ColorSensor.GetRawColor().blue > 1000 ) || !autoTimer.HasElapsed(7_s)){
-    intakeMain.Set(0);
-    intakeFollow.Set(0);
-    fl.Set(ControlMode::PercentOutput, .0);
-    fr.Set(ControlMode::PercentOutput, .0);
-    bl.Set(ControlMode::PercentOutput, .0);
-    br.Set(ControlMode::PercentOutput, .0);
-  }
-  else if(!autoTimer.HasElapsed(8.75_s)){
-    fl.Set(ControlMode::PercentOutput, -.23);
-    fr.Set(ControlMode::PercentOutput, .3);
-    bl.Set(ControlMode::PercentOutput, -.23);
-    br.Set(ControlMode::PercentOutput, .3);
-  }
-    else if(!autoTimer.HasElapsed(9_s)){
-    fl.Set(ControlMode::PercentOutput, .0);
-    fr.Set(ControlMode::PercentOutput, .0);
-    bl.Set(ControlMode::PercentOutput, .0);
-    br.Set(ControlMode::PercentOutput, .0);
+  else if(!stopSensor.Get()){
+      intakeMain.Set(0);
+      intakeFollow.Set(0);
+      targetXPose = 3;
   }
   else if(!autoTimer.HasElapsed(9.5_s)){
     ar.SetControl(m_request.WithPosition(39_tr));
@@ -267,15 +263,6 @@ void Robot::AutonomousPeriodic() {
     intakeFollow.Set(0);
     ar.SetControl(m_request.WithPosition(1_tr));
   }
-
-  
-  
-
-
-
-
-
-
 }
 
 void Robot::TeleopInit() {
@@ -401,7 +388,7 @@ void Robot::TeleopPeriodic() {
     pickupActive = 1;
     xbox.SetRumble(frc::GenericHID::kBothRumble, 1);
   }
-  if((ColorSensor.GetRawColor().red > 1000 && ColorSensor.GetRawColor().green > 1000 && ColorSensor.GetRawColor().blue > 1000 )){
+  if(!stopSensor.Get()){
     intakeMain.Set(0);
     intakeFollow.Set(0);
     pickupTimer.Stop();
@@ -417,8 +404,8 @@ void Robot::TeleopPeriodic() {
     xbox.SetRumble(frc::GenericHID::kBothRumble, 0);
   }
   else if(pickupTimer.HasElapsed(2_s)){
-    intakeMain.Set(-.3);
-    intakeFollow.Set(-.3);
+    intakeMain.Set(-.25);
+    intakeFollow.Set(-.25);
   }
 
 
@@ -503,7 +490,8 @@ void Robot::TeleopPeriodic() {
   }
 
 
-  double pGyroYaw = pGyro.GetYaw();
+  double pGyroYaw = 12;
+  //temp value pGyro.GetYaw();
 
   ((fl.GetSelectedSensorPosition(0))/4096);
   

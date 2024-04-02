@@ -56,6 +56,7 @@
 //#include "LimelightHelpers.h"
 #include <cameraserver/CameraServer.h>
 
+#include "frc/DigitalInput.h"
 #include "wpi/SpanExtras.h"
 #include <wpi/SymbolExports.h>
 
@@ -80,7 +81,6 @@ class Robot : public frc::TimedRobot {
   void SimulationPeriodic() override;
 
   std::string Dpad();
-
  private:
   frc::SendableChooser<std::string> m_chooser;
   const std::string kAutoNameDefault = "Default";
@@ -122,6 +122,8 @@ class Robot : public frc::TimedRobot {
 
   rev::ColorSensorV3 ColorSensor{i2cPort};
 
+  frc::DigitalInput stopSensor{0};
+
   //Drive Multipliers
   double spdmult = 1;
   double topspeed = 1;
@@ -162,7 +164,6 @@ class Robot : public frc::TimedRobot {
   double turn = 0.0;
 
   std::vector<double> botpose;
-
   //Variable for Pi
   const double Pi = 3.1415926535;
 
@@ -172,7 +173,7 @@ class Robot : public frc::TimedRobot {
   //Instance of Pigeon2 Class
   phoenix6::hardware::Pigeon2 gyro{24};
 
-  PigeonIMU pGyro{4};
+  //PigeonIMU pGyro{4};
 
   //Instance of Field2d and Rotation Objects
   frc::Field2d m_field;
@@ -236,5 +237,9 @@ class Robot : public frc::TimedRobot {
     //photon::PhotonPoseEstimator camPoseEstimator{
       //aprilTagFieldLayout, photon::MULTI_TAG_PNP_ON_COPROCESSOR, std::move(pCamera1), robotToCam1};
 
+  double targetXPose = 0;
+  double xPoseBlue = 0;
+  double xRobotError = 0;
+  double autoSpeedMulti = 0;
 
 };
