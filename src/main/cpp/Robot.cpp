@@ -130,7 +130,7 @@ void Robot::RobotPeriodic() {
   robotAngle = frc::InputModulus<units::degree_t>(
     rotation.Degrees(), halfangle2, halfangle);
 
-    robotAngle = units::angle::degree_t(robotAngle.value()-(time.value()/5));
+    robotAngle = units::angle::degree_t(robotAngle.value()-(time.value()/8));
 
    m_poseEstimator.Update(
     frc::Rotation2d{robotAngle},
@@ -145,11 +145,13 @@ units::meter_t botX{botpose_blue[0]};
 units::meter_t botY{botpose_blue[1]};
 
 frc::Pose2d visionMeasurement2d(botX,botY,frc::Rotation2d{robotAngle});
-
- m_poseEstimator.AddVisionMeasurement(
-  visionMeasurement2d,
-  frc::Timer::GetFPGATimestamp()
-);
+if(nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tid", 0.00) == 4){
+  m_poseEstimator.AddVisionMeasurement(
+    visionMeasurement2d,
+    frc::Timer::GetFPGATimestamp()
+  );
+}
+ 
 
   frc::SmartDashboard::PutData("Field", &m_field);
 
@@ -183,6 +185,11 @@ frc::Pose2d visionMeasurement2d(botX,botY,frc::Rotation2d{robotAngle});
   //units::length::meter_t distance;
   //distance = frc::Pose2d::X;
   //distance.value();
+
+  robotPose = m_field.GetRobotPose();
+
+  robotX = robotPose.X();
+  robotY = robotPose.Y();
 }
 
 /**
@@ -219,6 +226,9 @@ void Robot::AutonomousPeriodic() {
     // Default Auto goes here
   }
   */
+  xPoseBlue = robotX.value() * 3.37;
+
+  targetXPose = 49.833;
 
   xRobotError = targetXPose - xPoseBlue;
   
@@ -253,15 +263,15 @@ void Robot::AutonomousPeriodic() {
     intakeFollow.Set(0);
     ar.SetControl(m_request.WithPosition(1_tr));
   }
-  else if(!autoTimer.HasElapsed(4.25_s)){
+  else if(!autoTimer.HasElapsed(8.25_s)){
     intakeMain.Set(.5);
     intakeFollow.Set(.3);
-    targetXPose = 10;
+    targetXPose = 40;
   }
   else if(!stopSensor.Get()){
       intakeMain.Set(0);
       intakeFollow.Set(0);
-      targetXPose = 3;
+      targetXPose = 49.833;
   }
   else if(!autoTimer.HasElapsed(9.5_s)){
     ar.SetControl(m_request.WithPosition(39_tr));
@@ -373,10 +383,10 @@ void Robot::TeleopPeriodic() {
     br.Set(ControlMode::PercentOutput, 0);
   }
 
-  frc::Pose2d robotPose = m_field.GetRobotPose();
+  //frc::Pose2d robotPose = m_field.GetRobotPose();
 
-  units::length::meter_t robotX = robotPose.X();
-  units::length::meter_t robotY = robotPose.Y();
+  //units::length::meter_t robotX = robotPose.X();
+  //units::length::meter_t robotY = robotPose.Y();
 
   camtoTarget = botpose_red[0];
   camtoTarget = camtoTarget - 0.2;
