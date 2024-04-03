@@ -130,7 +130,7 @@ void Robot::RobotPeriodic() {
   robotAngle = frc::InputModulus<units::degree_t>(
     rotation.Degrees(), halfangle2, halfangle);
 
-    robotAngle = units::angle::degree_t(robotAngle.value()-(time.value()/8));
+    robotAngle = units::angle::degree_t(robotAngle.value()-(time.value()/9));
 
    m_poseEstimator.Update(
     frc::Rotation2d{robotAngle},
@@ -216,6 +216,8 @@ void Robot::AutonomousInit() {
   }
   autoTimer.Start();
   autoTimer.Reset();
+
+  targetXPose = 49.833;
 }
 
 void Robot::AutonomousPeriodic() {
@@ -228,12 +230,15 @@ void Robot::AutonomousPeriodic() {
   */
   xPoseBlue = robotX.value() * 3.37;
 
-  targetXPose = 49.833;
+
 
   xRobotError = targetXPose - xPoseBlue;
   
   if(abs(xRobotError) < 1){
     autoSpeedMulti = xRobotError;
+  }
+  else if(xRobotError < 0){
+    autoSpeedMulti = -1;
   }
   else{
     autoSpeedMulti = 1;
@@ -339,7 +344,9 @@ void Robot::TeleopPeriodic() {
 
   frc::SmartDashboard::PutNumber("pGyroYaw", pGyroYaw);
 
-  //Half Trapazoidal Acceleration 
+  frc::SmartDashboard::PutBoolean("ISstop", stopSensor.Get());
+
+  //Half Trapazoidal Acceleration
 
   if(magnitude>=1){
     magnitude = 1;
@@ -393,20 +400,20 @@ void Robot::TeleopPeriodic() {
   double targetdist;
 
   //target X 16.5608
-  //target Y 5.5372
+  //target Y 5.53720l
 
-  if(nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tid", 0.00) == 4){
-    targetdist = sqrt(pow((robotX.value()-5.5372), 2)+pow(16.5608-robotY.value(), 2));
-  }else{
-    targetdist = sqrt(pow((robotX.value()-5.5372), 2)+pow(robotY.value(), 2));
-  };
+  //if(nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tid", 0.00) == 4.0){
+    //targetdist = sqrt(pow((robotX.value()-5.5372), 2)+pow(16.5608-robotY.value(), 2));
+  //}else{
+    //targetdist = sqrt(pow((robotX.value()-5.5372), 2)+pow(robotY.value(), 2));
+  //};
 
   bool hastarget = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv", 0);
 
   //shootangle = ((0.00002004*(pow(camtoTarget, 3)))+(-0.006432*(pow(camtoTarget, 2)))+(0.8477*camtoTarget)+25.12);
   
-  //shootangle = ((1.223*(pow(camtoTarget, 3)))+(-9.969*(pow(camtoTarget, 2)))+(33.37*camtoTarget)+25.12);
-  shootangle = ((1.223*(pow(targetdist, 3)))+(-9.969*(pow(targetdist, 2)))+(33.37*targetdist)+25.12);
+  shootangle = ((1.223*(pow(camtoTarget, 3)))+(-9.969*(pow(camtoTarget, 2)))+(33.37*camtoTarget)+25.12);
+  //shootangle = ((1.223*(pow(targetdist, 3)))+(-9.969*(pow(targetdist, 2)))+(33.37*targetdist)+25.12);
   
   if(shootangle > 90){
     shootangle = 90;
@@ -419,7 +426,7 @@ void Robot::TeleopPeriodic() {
   frc::SmartDashboard::PutNumber("camtotarget", camtoTarget);
 
   //units::angle::turn_t offset{(1.1111111111111111111*(pGyroYaw - shootangle))};
-  units::angle::turn_t offset{(1.11111*shootangle)-15};
+  units::angle::turn_t offset{(1.11111*shootangle)-12};
   frc::SmartDashboard::PutNumber("shootangle", shootangle);
   frc::SmartDashboard::PutNumber("shootangleoffset", (1.11111*shootangle)+1);
   //frc::SmartDashboard::PutNumber("offset", (1.1111111111111111111*(pGyroYaw - shootangle)));
@@ -431,6 +438,14 @@ void Robot::TeleopPeriodic() {
 
   ar.SetControl(m_request.WithPosition(offset));
 
+  }
+  if(RightTrigger){
+    offset+=1_tr;
+    ar.SetControl(m_request.WithPosition(offset));
+  }
+  if(LeftTrigger){
+    offset-=1_tr;
+    ar.SetControl(m_request.WithPosition(offset));
   }
 
   if(BackButton){
@@ -450,7 +465,9 @@ void Robot::TeleopPeriodic() {
   ar.SetControl(m_request.WithPosition(130_tr));
 
   }
-
+  if(Dpad() == "Up"){
+    gyro.Reset();
+  }
 
   //Intake Statements
   if(YButton){
@@ -460,7 +477,7 @@ void Robot::TeleopPeriodic() {
     pickupActive = 1;
     xbox.SetRumble(frc::GenericHID::kBothRumble, 1);
   }
-  if(!stopSensor.Get()){
+/*  if(!stopSensor.Get()){
     intakeMain.Set(0);
     intakeFollow.Set(0);
     pickupTimer.Stop();
@@ -468,6 +485,7 @@ void Robot::TeleopPeriodic() {
     pickupActive = 0;
     xbox.SetRumble(frc::GenericHID::kBothRumble, 0);
   }
+  */
   
   if(pickupTimer.HasElapsed(2.3_s)){
     intakeMain.Set(0);
