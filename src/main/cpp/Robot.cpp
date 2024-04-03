@@ -228,72 +228,7 @@ void Robot::AutonomousPeriodic() {
     // Default Auto goes here
   }
   */
-  xPoseBlue = robotX.value() * 3.37;
 
-
-
-  xRobotError = targetXPose - xPoseBlue;
-  
-  if(abs(xRobotError) < 1){
-    autoSpeedMulti = xRobotError;
-  }
-  else if(xRobotError < 0){
-    autoSpeedMulti = -1;
-  }
-  else{
-    autoSpeedMulti = 1;
-  }
-
-  if(!(abs(xRobotError) < .2)){
-    fl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
-    fr.Set(ControlMode::PercentOutput, autoSpeedMulti*.3);
-    bl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
-    br.Set(ControlMode::PercentOutput, autoSpeedMulti*.3);
-  }
-
-  //basic in-place shooting with note in intake 
-  if(!autoTimer.HasElapsed(.25_s)){
-    ar.SetControl(m_request.WithPosition(39_tr));
-  }
-  else if(!autoTimer.HasElapsed(1.25_s)){
-    mainShooter.Set(.7);
-  }
-  else if(!autoTimer.HasElapsed(2.25_s)){
-    intakeMain.Set(.75);
-    intakeFollow.Set(.75);
-  }
-  else if(!autoTimer.HasElapsed(3.75_s)){
-    mainShooter.Set(0);
-    intakeMain.Set(0);
-    intakeFollow.Set(0);
-    ar.SetControl(m_request.WithPosition(1_tr));
-  }
-  else if(!autoTimer.HasElapsed(8.25_s)){
-    intakeMain.Set(.5);
-    intakeFollow.Set(.3);
-    targetXPose = 40;
-  }
-  else if(!stopSensor.Get()){
-      intakeMain.Set(0);
-      intakeFollow.Set(0);
-      targetXPose = 49.833;
-  }
-  else if(!autoTimer.HasElapsed(9.5_s)){
-    ar.SetControl(m_request.WithPosition(39_tr));
-  }
-  else if(!autoTimer.HasElapsed(10.75_s)){
-    mainShooter.Set(.7);
-  }
-  else if(!autoTimer.HasElapsed(11.75_s)){
-    intakeMain.Set(.75);
-    intakeFollow.Set(.75);
-  }
-  else if(!autoTimer.HasElapsed(13.5_s)){
-    mainShooter.Set(0);
-    intakeMain.Set(0);
-    intakeFollow.Set(0);
-    ar.SetControl(m_request.WithPosition(1_tr));
-  }
 }
 
 void Robot::TeleopInit() {
