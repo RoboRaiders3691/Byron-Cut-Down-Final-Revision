@@ -229,7 +229,7 @@ void Robot::AutonomousPeriodic() {
   }
   */
   //basic in-place shooting with note in intake 
-  if(!autoTimer.HasElapsed(.25_s)){
+   if(!autoTimer.HasElapsed(.25_s)){
     ar.SetControl(m_request.WithPosition(39_tr));
   }
   else if(!autoTimer.HasElapsed(1.25_s)){
