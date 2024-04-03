@@ -130,7 +130,7 @@ void Robot::RobotPeriodic() {
   robotAngle = frc::InputModulus<units::degree_t>(
     rotation.Degrees(), halfangle2, halfangle);
 
-    //robotAngle = units::angle::degree_t(robotAngle.value()-(time.value()/13));
+    robotAngle = units::angle::degree_t(robotAngle.value()-(time.value()/13));
 
    m_poseEstimator.Update(
     frc::Rotation2d{robotAngle},
@@ -145,7 +145,7 @@ units::meter_t botX{botpose_blue[0]};
 units::meter_t botY{botpose_blue[1]};
 
 frc::Pose2d visionMeasurement2d(botX,botY,frc::Rotation2d{robotAngle});
-if(nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv", 0) == 1){
+if(nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tid", 0.00) == 4){
   m_poseEstimator.AddVisionMeasurement(
     visionMeasurement2d,
     frc::Timer::GetFPGATimestamp()
@@ -228,37 +228,17 @@ void Robot::AutonomousPeriodic() {
     // Default Auto goes here
   }
   */
-  xPoseBlue = robotX.value() * 3.37;
-
-
-
-  xRobotError = targetXPose - xPoseBlue;
-  
-  if(abs(xRobotError) < 1){
-    autoSpeedMulti = xRobotError;
-  }
-  else if(xRobotError < 0){
-    autoSpeedMulti = -1;
-  }
-  else{
-    autoSpeedMulti = 1;
-  }
-
-  if(!(abs(xRobotError) < .2)){
-    fl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
-    fr.Set(ControlMode::PercentOutput, autoSpeedMulti*.3);
-    bl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
-    br.Set(ControlMode::PercentOutput, autoSpeedMulti*.3);
-  }
-
   //basic in-place shooting with note in intake 
   if(!autoTimer.HasElapsed(.25_s)){
     ar.SetControl(m_request.WithPosition(39_tr));
   }
   else if(!autoTimer.HasElapsed(1.25_s)){
+    mainShooter.Set(.75);
     mainShooter.Set(.7);
   }
   else if(!autoTimer.HasElapsed(2.25_s)){
+    intakeMain.Set(-.75);
+    intakeFollow.Set(-.75);
     intakeMain.Set(.75);
     intakeFollow.Set(.75);
   }
@@ -268,15 +248,35 @@ void Robot::AutonomousPeriodic() {
     intakeFollow.Set(0);
     ar.SetControl(m_request.WithPosition(1_tr));
   }
-  else if(!autoTimer.HasElapsed(8.25_s)){
+  else if(!autoTimer.HasElapsed(4.25_s)){
     intakeMain.Set(.5);
     intakeFollow.Set(.3);
-    targetXPose = 40;
   }
-  else if(!stopSensor.Get()){
-      intakeMain.Set(0);
-      intakeFollow.Set(0);
-      targetXPose = 49.833;
+  else if(!autoTimer.HasElapsed(6.5_s)){
+    fl.Set(ControlMode::PercentOutput, .23);
+    fr.Set(ControlMode::PercentOutput, -.3);
+    bl.Set(ControlMode::PercentOutput, .23);
+    br.Set(ControlMode::PercentOutput, -.3);
+  }
+  else if((ColorSensor.GetRawColor().red > 1000 && ColorSensor.GetRawColor().green > 1000 && ColorSensor.GetRawColor().blue > 1000 ) || !autoTimer.HasElapsed(7_s)){
+    intakeMain.Set(0);
+    intakeFollow.Set(0);
+    fl.Set(ControlMode::PercentOutput, .0);
+    fr.Set(ControlMode::PercentOutput, .0);
+    bl.Set(ControlMode::PercentOutput, .0);
+    br.Set(ControlMode::PercentOutput, .0);
+  }
+  else if(!autoTimer.HasElapsed(8.75_s)){
+    fl.Set(ControlMode::PercentOutput, -.23);
+    fr.Set(ControlMode::PercentOutput, .3);
+    bl.Set(ControlMode::PercentOutput, -.23);
+    br.Set(ControlMode::PercentOutput, .3);
+  }
+    else if(!autoTimer.HasElapsed(9_s)){
+    fl.Set(ControlMode::PercentOutput, .0);
+    fr.Set(ControlMode::PercentOutput, .0);
+    bl.Set(ControlMode::PercentOutput, .0);
+    br.Set(ControlMode::PercentOutput, .0);
   }
   else if(!autoTimer.HasElapsed(9.5_s)){
     ar.SetControl(m_request.WithPosition(39_tr));
@@ -423,12 +423,12 @@ void Robot::TeleopPeriodic() {
     shootangle = 1;
   }
 
-  double robotshootangle = (robotAngle.value() - atan(robotY.value()-5.5372/(robotX.value())));
+  double robotshootangle = (robotAngle.value() - atan(robotY.value()/(robotX.value()-5.5372)));
 
   frc::SmartDashboard::PutNumber("camtotarget", camtoTarget);
 
   //units::angle::turn_t offset{(1.1111111111111111111*(pGyroYaw - shootangle))};
-  units::angle::turn_t offset{(1.11111*shootangle)-15};
+  units::angle::turn_t offset{(1.11111*shootangle)-12};
   frc::SmartDashboard::PutNumber("shootangle", shootangle);
   frc::SmartDashboard::PutNumber("shootangleoffset", (1.11111*shootangle)+1);
   //frc::SmartDashboard::PutNumber("offset", (1.1111111111111111111*(pGyroYaw - shootangle)));
@@ -479,7 +479,7 @@ void Robot::TeleopPeriodic() {
     pickupActive = 1;
     xbox.SetRumble(frc::GenericHID::kBothRumble, 1);
   }
-  if(!stopSensor.Get()){
+/*  if(!stopSensor.Get()){
     intakeMain.Set(0);
     intakeFollow.Set(0);
     pickupTimer.Stop();
@@ -487,7 +487,7 @@ void Robot::TeleopPeriodic() {
     pickupActive = 0;
     xbox.SetRumble(frc::GenericHID::kBothRumble, 0);
   }
-  
+  */
   
   if(pickupTimer.HasElapsed(2.3_s)){
     intakeMain.Set(0);
