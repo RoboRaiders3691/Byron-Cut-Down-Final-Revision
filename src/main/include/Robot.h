@@ -215,7 +215,7 @@ class Robot : public frc::TimedRobot {
       units::meter_t{(((bl.GetSelectedSensorPosition(0))/4096)*0.635)},
       units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*-0.635)}
     },
-    frc::Pose2d{6_m, 6_m, 0_rad}
+    frc::Pose2d{15.2_m, 5.5_m, 0_rad}
   };
 
   //Instance of PhotonCamera
@@ -250,5 +250,10 @@ class Robot : public frc::TimedRobot {
   double xPoseBlue = 0;
   double xRobotError = 0;
   double autoSpeedMulti = 0;
+
+  units::length::meter_t robotX{0_m};
+  units::length::meter_t robotY{0_m};
+  frc::Pose2d robotPose;
+  
 
 };
