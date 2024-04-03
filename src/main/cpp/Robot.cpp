@@ -308,6 +308,7 @@ void Robot::TeleopInit() {
     frc::Pose2d(0_m, 0_m, 0_rad)
   );*/
   gyro.Reset();
+  nt::NetworkTableInstance::GetDefault().GetTable("limelight")->PutNumber("ledMode",1);
 }
 
 void Robot::TeleopPeriodic() {
