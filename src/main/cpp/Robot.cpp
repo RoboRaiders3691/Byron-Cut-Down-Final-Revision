@@ -806,11 +806,11 @@ void Robot::TeleopPeriodic() {
   ar.SetControl(m_request.WithPosition(offset));
 
   }
-  if(xbox.GetRightTriggerAxis() == 1){
+  if(xbox.GetRightTriggerAxis() > 0.75){
 
     ar.SetControl(m_request.WithPosition(39_tr));
   }
-  
+
   if(LeftTrigger){
     offset-=1_tr;
     ar.SetControl(m_request.WithPosition(offset));
