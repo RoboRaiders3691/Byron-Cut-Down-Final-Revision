@@ -238,6 +238,33 @@ void Robot::AutonomousInit() {
   shooterDelay.Stop();
   shooterDelay.Reset();
 
+  if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
+    if(m_autoSelected == kAutoNameMid){
+      gyro.Reset();
+    }
+  }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
+    if(m_autoSelected == kAutoNameL){
+        gyro.SetYaw(60_deg);
+    }
+  }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
+    if(m_autoSelected == kAutoNameR){
+      gyro.SetYaw(-60_deg);
+    }
+  }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue){
+    if(m_autoSelected == kAutoNameMid){
+      gyro.Reset();
+    }
+  }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue){
+    if(m_autoSelected == kAutoNameMid){
+      gyro.SetYaw(180_deg);
+    }
+  }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue){
+    if(m_autoSelected == kAutoNameMid){
+      gyro.Reset();
+    }
+  }
+  
+  gyro.SetYaw(180_deg);
 
   autoStep = 1;
 
@@ -245,6 +272,11 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {
+  /*gyro.SetYaw(60_deg);
+  gyro.SetYaw(-60_deg);
+  gyro.SetYaw(120_deg);
+  gyro.SetYaw(-120_deg);
+  gyro.SetYaw(180_deg);*/
 
 if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
 if(m_autoSelected == kAutoNameMid){
@@ -721,7 +753,12 @@ void Robot::TeleopPeriodic() {
 
   //drive code
   if(!XButton){
-  if(ly>=0.1 || ly<=-0.1 || lx>=0.1 ||lx<=-0.1){
+  /*if(ly>0.9 && lx>0.1 && lx<-0.1 || ly<-0.9 && lx>0.1 && lx<-0.1){
+    fl.Set(ControlMode::PercentOutput, flipDrive*1*((sin(-direction+(.25*Pi)))*magnitude + flipDrive*turn));
+    fr.Set(ControlMode::PercentOutput, -flipDrive*1*((sin(-direction-(.25*Pi)))*magnitude - flipDrive*turn));
+    bl.Set(ControlMode::PercentOutput, flipDrive*1*((sin(-direction-(.25*Pi)))*magnitude + flipDrive*turn));
+    br.Set(ControlMode::PercentOutput, -flipDrive*1*((sin(-direction+(.25*Pi)))*magnitude - flipDrive*turn));
+  }else*/ if(ly>=0.1 || ly<=-0.1 || lx>=0.1 ||lx<=-0.1){
     fl.Set(ControlMode::PercentOutput, flipDrive*spd*((sin(-direction+(.25*Pi)))*magnitude + flipDrive*turn));
     fr.Set(ControlMode::PercentOutput, -flipDrive*spd*((sin(-direction-(.25*Pi)))*magnitude - flipDrive*turn));
     bl.Set(ControlMode::PercentOutput, flipDrive*spd*((sin(-direction-(.25*Pi)))*magnitude + flipDrive*turn));
@@ -752,7 +789,7 @@ void Robot::TeleopPeriodic() {
     camtoTarget = robotX.value()-0.4226;
   }
 
-  double targetdist;
+  double targetdist; 
 
   //target X 16.5608
   //target Y 5.53720l
@@ -798,10 +835,11 @@ void Robot::TeleopPeriodic() {
   ar.SetControl(m_request.WithPosition(offset));
 
   }
-  if(RightTrigger){
-    offset+=1_tr;
-    ar.SetControl(m_request.WithPosition(offset));
+  if(xbox.GetRightTriggerAxis() > 0.75){
+
+    ar.SetControl(m_request.WithPosition(39_tr));
   }
+
   if(LeftTrigger){
     offset-=1_tr;
     ar.SetControl(m_request.WithPosition(offset));
