@@ -135,7 +135,7 @@ class Robot : public frc::TimedRobot {
   frc::DigitalInput stopSensor{0};
 
   //Drive Multipliers
-  double spdmult = 0.5;
+  double spdmult = 1;
   double topspeed = 1;
 
   //Shooter Variables

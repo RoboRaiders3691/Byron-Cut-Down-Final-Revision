@@ -235,7 +235,32 @@ void Robot::AutonomousInit() {
   shooterDelay.Stop();
   shooterDelay.Reset();
 
-  //gyro.Reset();
+  if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
+    if(m_autoSelected == kAutoNameMid){
+      gyro.Reset();
+    }
+  }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
+    if(m_autoSelected == kAutoNameL){
+        gyro.SetYaw(60_deg);
+    }
+  }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
+    if(m_autoSelected == kAutoNameR){
+      gyro.SetYaw(-60_deg);
+    }
+  }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue){
+    if(m_autoSelected == kAutoNameMid){
+      gyro.Reset();
+    }
+  }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue){
+    if(m_autoSelected == kAutoNameMid){
+      gyro.SetYaw(180_deg);
+    }
+  }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue){
+    if(m_autoSelected == kAutoNameMid){
+      gyro.Reset();
+    }
+  }
+  
   gyro.SetYaw(180_deg);
 
   autoStep = 1;
