@@ -742,13 +742,18 @@ void Robot::TeleopPeriodic() {
 
   //camtoTarget = botpose_red[0];
   //camtoTarget = camtoTarget - 0.2;
-  camtoTarget = 16.5608-robotX.value();
+  if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
+    camtoTarget = 16.5608-robotX.value();
+  }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue){
+    camtoTarget = robotX.value()-0.381;
+  }
   double targetdist;
 
   //target X 16.5608
   //target Y 5.53720l
 
   //if(nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tid", 0.00) == 4.0){
+
     targetdist = sqrt(pow(camtoTarget, 2)+pow(robotY.value()-5.5372, 2));
   //}else{
     //targetdist = sqrt(pow((robotX.value()-5.5372), 2)+pow(robotY.value(), 2));
@@ -772,7 +777,7 @@ void Robot::TeleopPeriodic() {
   }
 
   double robotshootangle = (robotAngle.value() - atan(robotY.value()-5.5372/(robotX.value())));
-
+  
   frc::SmartDashboard::PutNumber("camtotarget", camtoTarget);
 
   //units::angle::turn_t offset{(1.1111111111111111111*(pGyroYaw - shootangle))};
