@@ -742,7 +742,12 @@ void Robot::TeleopPeriodic() {
 
   //camtoTarget = botpose_red[0];
   //camtoTarget = camtoTarget - 0.2;
-  camtoTarget = 16.5608-robotX.value();
+  if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
+    camtoTarget = 16.5608-robotX.value();
+  }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue){
+    camtoTarget = robotX.value()-0.4226;
+  }
+
   double targetdist;
 
   //target X 16.5608
