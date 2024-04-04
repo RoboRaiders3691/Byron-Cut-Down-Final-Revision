@@ -610,6 +610,7 @@ else if(autoStep == 12 && shooterDelay.HasElapsed(2.5_s)){
 }
 }
 else if (m_autoSelected == kAutoNameS){
+    frc::SmartDashboard::PutString("Auto Shoot Only", "Only Shooting");
 if(autoStep == 1){
 	ar.SetControl(m_request.WithPosition(39_tr));
 	mainShooter.Set(.6);
@@ -648,10 +649,12 @@ void Robot::TeleopInit() {
   //gyro.Reset();
   //gyro.SetYaw(-60_deg);
   nt::NetworkTableInstance::GetDefault().GetTable("limelight")->PutNumber("ledMode",1);
-
-  climbTimer.Start();
-  climbTimer.Stop();
-  climbTimer.Reset();
+  shooterDelay.Start();
+  shooterDelay.Stop();
+  shooterDelay.Reset();
+  pickupTimer.Start();
+  pickupTimer.Stop();
+  pickupTimer.Reset();
 }
 
 void Robot::TeleopPeriodic() {
@@ -906,14 +909,14 @@ void Robot::TeleopPeriodic() {
       shooterDelay.Start();
     }
 
-    if(shooterDelay.HasElapsed(2_s)){
+    if(shooterDelay.HasElapsed(.7_s)){
       mainShooter.Set(0);
       intakeMain.Set(0);
       intakeFollow.Set(0);
       shooterDelay.Stop();
       shooterDelay.Reset();
     }
-    else if(shooterDelay.HasElapsed(1_s)){
+    else if(shooterDelay.HasElapsed(.4_s)){
       intakeMain.Set(.65);
       intakeFollow.Set(.65);
     }
