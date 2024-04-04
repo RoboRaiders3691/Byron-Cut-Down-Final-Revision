@@ -264,7 +264,7 @@ void Robot::AutonomousInit() {
     }
   }
   
-  gyro.SetYaw(180_deg);
+
 
   autoStep = 1;
 
