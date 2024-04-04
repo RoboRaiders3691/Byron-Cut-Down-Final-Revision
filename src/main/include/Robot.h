@@ -135,7 +135,7 @@ class Robot : public frc::TimedRobot {
   frc::DigitalInput stopSensor{0};
 
   //Drive Multipliers
-  double spdmult = 1;
+  double spdmult = 0.5;
   double topspeed = 1;
 
   //Shooter Variables
@@ -220,8 +220,12 @@ class Robot : public frc::TimedRobot {
       units::meter_t{(((bl.GetSelectedSensorPosition(0))/4096)*0.635)},
       units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*-0.635)}
     },
-    frc::Pose2d{15.2_m, 5.5_m, 0_rad}
+    //Red Start
+    //frc::Pose2d{15.2_m, 5.5_m, 0_rad} 
+    //Blue Start
+    frc::Pose2d{1.3_m, 5.5_m, 180_rad}
   };
+
 
   //Instance of PhotonCamera
 
@@ -269,7 +273,7 @@ class Robot : public frc::TimedRobot {
   int autoStep = 1;
 
   //Chosen Starting Position as a std::string
-  std::string startPosition = "Right";
+  std::string startPosition = "Middle";
 
 
 };
