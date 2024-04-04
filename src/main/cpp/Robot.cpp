@@ -645,7 +645,7 @@ void Robot::TeleopInit() {
     },
     frc::Pose2d(0_m, 0_m, 0_rad)
   );*/
-  gyro.Reset();
+  //gyro.Reset();
   //gyro.SetYaw(-60_deg);
   nt::NetworkTableInstance::GetDefault().GetTable("limelight")->PutNumber("ledMode",1);
 
