@@ -228,8 +228,11 @@ void Robot::AutonomousInit() {
   else if(m_autoSelected == kAutoNameR){
 
   }
-  else {
+  else if(m_autoSelected == kAutoNameS) {
     // Default Auto goes here
+  }
+  else{
+
   }
   shooterDelay.Start();
   shooterDelay.Stop();
@@ -335,8 +338,6 @@ else if(autoStep == 5){
     bl.Set(ControlMode::PercentOutput, 0);
     br.Set(ControlMode::PercentOutput, 0);
 	}
-}
-
 }
 else if (autoStep == 6){
 	ar.SetControl(m_request.WithPosition(39_tr));
@@ -609,8 +610,7 @@ else if(autoStep == 12 && shooterDelay.HasElapsed(2.5_s)){
 	autoStep = 13;
 }
 }
-else if (m_autoSelected == kAutoNameS){
-    frc::SmartDashboard::PutString("Auto Shoot Only", "Only Shooting");
+else if(m_autoSelected == kAutoNameS){
 if(autoStep == 1){
 	ar.SetControl(m_request.WithPosition(39_tr));
 	mainShooter.Set(.6);
@@ -630,6 +630,7 @@ else if(autoStep == 3 && shooterDelay.HasElapsed(2.5_s)){
 	shooterDelay.Stop();
 	shooterDelay.Reset();
 	autoStep = 4;
+}
 }
 }
 }
