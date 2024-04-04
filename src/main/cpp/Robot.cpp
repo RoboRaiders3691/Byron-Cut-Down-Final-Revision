@@ -21,7 +21,10 @@ void Robot::RobotInit() {
   frc::Field2d m_field;
 
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
-  m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
+  m_chooser.AddOption(kAutoNameMid, kAutoNameMid);
+  m_chooser.AddOption(kAutoNameR, kAutoNameR);
+  m_chooser.AddOption(kAutoNameL, kAutoNameL);
+  m_chooser.AddOption(kAutoNameL, kAutoNameS);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 
   ctre::phoenix6::configs::TalonFXConfiguration talonFXConfigs{};
@@ -125,12 +128,16 @@ void Robot::RobotPeriodic() {
   //frc::SmartDashboard::PutNumber("Green", ColorSensor.GetRawColor().green);
   //frc::SmartDashboard::PutNumber("Blue", ColorSensor.GetRawColor().blue);
   rotation = gyro.GetRotation2d();
-  units::second_t time = frc::Timer::GetFPGATimestamp();
+  //double yaw = gyro.GetAngle();
+  //units::degree_t rotationvalue = rotation.Degrees();
+  //units::second_t time = frc::Timer::GetFPGATimestamp();
+  //frc::SmartDashboard::PutNumber("rotation2d", rotationvalue.value());
+  //units::angle::degree_t yawrotation(yaw);
 
   robotAngle = frc::InputModulus<units::degree_t>(
     rotation.Degrees(), halfangle2, halfangle);
 
-    robotAngle = units::angle::degree_t(robotAngle.value()-(time.value()/13));
+    //robotAngle = units::angle::degree_t(robotAngle.value()-(time.value()*0.0425));
 
    m_poseEstimator.Update(
     frc::Rotation2d{robotAngle},
@@ -143,9 +150,12 @@ void Robot::RobotPeriodic() {
   );
 units::meter_t botX{botpose_blue[0]};
 units::meter_t botY{botpose_blue[1]};
+units::degree_t botRotation{botpose_blue[5]};
+frc::SmartDashboard::PutNumber("tagnum", botpose_blue[7]);
 
 frc::Pose2d visionMeasurement2d(botX,botY,frc::Rotation2d{robotAngle});
-if(nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tid", 0.00) == 4){
+if(nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tv", 0) == 1){
+  //gyro.SetYaw(botRotation);
   m_poseEstimator.AddVisionMeasurement(
     visionMeasurement2d,
     frc::Timer::GetFPGATimestamp()
@@ -190,6 +200,9 @@ if(nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tid"
 
   robotX = robotPose.X();
   robotY = robotPose.Y();
+
+  
+
 }
 
 /**
@@ -205,96 +218,421 @@ if(nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("tid"
  */
 void Robot::AutonomousInit() {
   m_autoSelected = m_chooser.GetSelected();
-  // m_autoSelected = SmartDashboard::GetString("Auto Selector",
-  //     kAutoNameDefault);
+  //m_autoSelected = frc::SmartDashboard::GetString("Auto Selector",
+      //kAutoNameDefault);
   fmt::print("Auto selected: {}\n", m_autoSelected);
 
-  if (m_autoSelected == kAutoNameCustom) {
+  if (m_autoSelected == kAutoNameMid) {
     // Custom Auto goes here
-  } else {
+  }
+  else if(m_autoSelected == kAutoNameR){
+
+  }
+  else {
     // Default Auto goes here
   }
-  autoTimer.Start();
-  autoTimer.Reset();
+  shooterDelay.Start();
+  shooterDelay.Stop();
+  shooterDelay.Reset();
+
+
+  autoStep = 1;
 
   targetXPose = 49.833;
 }
 
 void Robot::AutonomousPeriodic() {
-  /* Not gunna bother with this right now (to be used if mutiple auto positions are determined)
-  if (m_autoSelected == kAutoNameCustom) {
-    // Custom Auto goes here
-  } else {
-    // Default Auto goes here
-  }
-  */
-  //basic in-place shooting with note in intake 
-   if(!autoTimer.HasElapsed(.25_s)){
-    ar.SetControl(m_request.WithPosition(39_tr));
-  }
-  else if(!autoTimer.HasElapsed(1.25_s)){
-    mainShooter.Set(.75);
-    mainShooter.Set(.7);
-  }
-  else if(!autoTimer.HasElapsed(2.25_s)){
-    intakeMain.Set(-.75);
-    intakeFollow.Set(-.75);
-    intakeMain.Set(.75);
-    intakeFollow.Set(.75);
-  }
-  else if(!autoTimer.HasElapsed(3.75_s)){
-    mainShooter.Set(0);
-    intakeMain.Set(0);
-    intakeFollow.Set(0);
-    ar.SetControl(m_request.WithPosition(1_tr));
-  }
-  else if(!autoTimer.HasElapsed(4.25_s)){
-    intakeMain.Set(.5);
-    intakeFollow.Set(.3);
-  }
-  else if(!autoTimer.HasElapsed(6.5_s)){
-    fl.Set(ControlMode::PercentOutput, .23);
-    fr.Set(ControlMode::PercentOutput, -.3);
-    bl.Set(ControlMode::PercentOutput, .23);
-    br.Set(ControlMode::PercentOutput, -.3);
-  }
-  else if((ColorSensor.GetRawColor().red > 1000 && ColorSensor.GetRawColor().green > 1000 && ColorSensor.GetRawColor().blue > 1000 ) || !autoTimer.HasElapsed(7_s)){
-    intakeMain.Set(0);
-    intakeFollow.Set(0);
-    fl.Set(ControlMode::PercentOutput, .0);
-    fr.Set(ControlMode::PercentOutput, .0);
-    bl.Set(ControlMode::PercentOutput, .0);
-    br.Set(ControlMode::PercentOutput, .0);
-  }
-  else if(!autoTimer.HasElapsed(8.75_s)){
-    fl.Set(ControlMode::PercentOutput, -.23);
-    fr.Set(ControlMode::PercentOutput, .3);
-    bl.Set(ControlMode::PercentOutput, -.23);
-    br.Set(ControlMode::PercentOutput, .3);
-  }
-    else if(!autoTimer.HasElapsed(9_s)){
-    fl.Set(ControlMode::PercentOutput, .0);
-    fr.Set(ControlMode::PercentOutput, .0);
-    bl.Set(ControlMode::PercentOutput, .0);
-    br.Set(ControlMode::PercentOutput, .0);
-  }
-  else if(!autoTimer.HasElapsed(9.5_s)){
-    ar.SetControl(m_request.WithPosition(39_tr));
-  }
-  else if(!autoTimer.HasElapsed(10.75_s)){
-    mainShooter.Set(.7);
-  }
-  else if(!autoTimer.HasElapsed(11.75_s)){
-    intakeMain.Set(.75);
-    intakeFollow.Set(.75);
-  }
-  else if(!autoTimer.HasElapsed(13.5_s)){
-    mainShooter.Set(0);
-    intakeMain.Set(0);
-    intakeFollow.Set(0);
-    ar.SetControl(m_request.WithPosition(1_tr));
-  }
+
+if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
+if(m_autoSelected == kAutoNameMid){
+
+if(autoStep == 1){
+	ar.SetControl(m_request.WithPosition(39_tr));
+	mainShooter.Set(.6);
+	shooterDelay.Start();
+	autoStep = 2;
 }
+else if(autoStep == 2 && shooterDelay.HasElapsed(2_s)){
+	intakeMain.Set(.6);
+	intakeFollow.Set(.6);
+	autoStep = 3;
+}
+else if(autoStep == 3 && shooterDelay.HasElapsed(2.5_s)){
+	intakeMain.Set(0);
+	intakeFollow.Set(0);
+  mainShooter.Set(0);
+	ar.SetControl(m_request.WithPosition(1_tr));
+	shooterDelay.Stop();
+	shooterDelay.Reset();
+	autoStep = 4;
+}
+else if(autoStep == 4){
+	targetXPose = 42.5;
+
+	robotXError = targetXPose - (robotX.value()*3.28);
+
+	if(robotXError > 1){
+
+		autoSpeedMulti = 1;
+
+	}
+	else if(robotXError < -1) {
+
+		autoSpeedMulti = -1;
+
+	}
+	else{
+		autoSpeedMulti = robotXError;
+	}
+
+	intakeMain.Set(.6);
+	intakeFollow.Set(.6);
+
+	fl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
+	fr.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+	bl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
+	br.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+
+	if(!stopSensor.Get() || abs(robotXError) < .25){
+		autoStep = 5;
+    fl.Set(ControlMode::PercentOutput, 0);
+    fr.Set(ControlMode::PercentOutput, 0); 
+    bl.Set(ControlMode::PercentOutput, 0);
+    br.Set(ControlMode::PercentOutput, 0);
+	}
+}
+else if(autoStep == 5){
+	targetXPose = 49.883;
+
+	robotXError = targetXPose - (robotX.value()*3.28);
+
+	if(robotXError > 1){
+
+		autoSpeedMulti = 1;
+
+	}
+	else if(robotXError < -1) {
+
+		autoSpeedMulti = -1;
+
+	}
+	else{
+		autoSpeedMulti = robotXError;
+	}
+
+	intakeMain.Set(.0);
+	intakeFollow.Set(.0);
+
+	fl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
+	fr.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+	bl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
+	br.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+
+	if(abs(robotXError) < .25){
+		autoStep = 6;
+    fl.Set(ControlMode::PercentOutput, 0);
+    fr.Set(ControlMode::PercentOutput, 0); 
+    bl.Set(ControlMode::PercentOutput, 0);
+    br.Set(ControlMode::PercentOutput, 0);
+	}
+}
+
+}
+else if (autoStep == 6){
+	ar.SetControl(m_request.WithPosition(39_tr));
+	mainShooter.Set(.6);
+	shooterDelay.Start();
+	autoStep = 7;
+}
+else if(autoStep == 7 && shooterDelay.HasElapsed(2_s)){
+	intakeMain.Set(.6);
+	intakeFollow.Set(.6);
+	autoStep = 8;
+}
+else if(autoStep == 8 && shooterDelay.HasElapsed(2.5_s)){
+	intakeMain.Set(0);
+	intakeFollow.Set(0);
+  mainShooter.Set(0);
+	ar.SetControl(m_request.WithPosition(1_tr));
+	shooterDelay.Stop();
+	shooterDelay.Reset();
+	autoStep = 9;
+}
+
+}
+else if (m_autoSelected == kAutoNameR){
+
+if(autoStep == 1){
+	ar.SetControl(m_request.WithPosition(39_tr));
+	mainShooter.Set(.6);
+	shooterDelay.Start();
+	autoStep = 2;
+}
+else if(autoStep == 2 && shooterDelay.HasElapsed(2_s)){
+	intakeMain.Set(.6);
+	intakeFollow.Set(.6);
+	autoStep = 3;
+}
+else if(autoStep == 3 && shooterDelay.HasElapsed(2.5_s)){
+	intakeMain.Set(0);
+	intakeFollow.Set(0);
+  mainShooter.Set(0);
+	ar.SetControl(m_request.WithPosition(1_tr));
+	shooterDelay.Stop();
+	shooterDelay.Reset();
+	autoStep = 4;
+}
+else if(autoStep == 4){
+
+	targetXPose = sqrt(3) * ((13.5 - 4.5)* 3.28);
+	robotXError = targetXPose - (robotX.value()*3.28);
+	
+
+	if(robotXError > 1){
+
+		autoSpeedMulti = 1;
+
+	}
+	else if(robotXError < -1) {
+
+		autoSpeedMulti = -1;
+
+	}
+	else{
+		autoSpeedMulti = robotXError;
+	}
+
+	fl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
+	fr.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+	bl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
+	br.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+
+	if(abs(robotXError) < .25){
+		
+		finalTurnPose = (robotX.value()*3.28);
+
+		autoStep = 5;
+    
+    fl.Set(ControlMode::PercentOutput, 0);
+    fr.Set(ControlMode::PercentOutput, 0); 
+    bl.Set(ControlMode::PercentOutput, 0);
+    br.Set(ControlMode::PercentOutput, 0);
+	}
+}
+else if (autoStep == 5){
+	
+	targetRotation = 0;
+
+	robotRotError = (targetRotation - robotAngle.value()) * .5;
+
+	if(robotRotError > 1){
+
+		autoSpeedMulti = 1;
+
+	}
+	else if(robotRotError < -1) {
+
+		autoSpeedMulti = -1;
+
+	}
+	else{
+		autoSpeedMulti = robotRotError;
+	}
+	
+
+	fl.Set(ControlMode::PercentOutput, autoSpeedMulti*.23);
+	fr.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+	bl.Set(ControlMode::PercentOutput, autoSpeedMulti*.23);
+	br.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+
+	if(abs(robotRotError) < 2.5){
+		autoStep = 6;
+    fl.Set(ControlMode::PercentOutput, 0);
+    fr.Set(ControlMode::PercentOutput, 0); 
+    bl.Set(ControlMode::PercentOutput, 0);
+    br.Set(ControlMode::PercentOutput, 0);
+	}
+}
+else if(autoStep == 6){
+
+	targetXPose = 42.5;
+
+	robotXError = targetXPose - (robotX.value()*3.28);
+
+	if(robotXError > 1){
+
+		autoSpeedMulti = 1;
+
+	}
+	else if(robotXError < -1) {
+
+		autoSpeedMulti = -1;
+
+	}
+	else{
+		autoSpeedMulti = robotXError;
+	}
+
+	intakeMain.Set(.6);
+	intakeFollow.Set(.6);
+
+	fl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
+	fr.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+	bl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
+	br.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+	
+	if(!stopSensor.Get() || abs(robotXError) < .25){
+		autoStep = 7;
+    fl.Set(ControlMode::PercentOutput, 0);
+    fr.Set(ControlMode::PercentOutput, 0); 
+    bl.Set(ControlMode::PercentOutput, 0);
+    br.Set(ControlMode::PercentOutput, 0);
+	}
+}
+else if (autoStep == 7){
+
+	targetXPose = finalTurnPose;
+
+	robotXError = targetXPose - (robotX.value()*3.28);
+
+	if(robotXError > 1){
+
+		autoSpeedMulti = 1;
+
+	}
+	else if(robotXError < -1) {
+
+		autoSpeedMulti = -1;
+
+	}
+	else{
+		autoSpeedMulti = robotXError;
+	}
+
+	intakeMain.Set(0);
+	intakeFollow.Set(0);
+  mainShooter.Set(0);
+
+	fl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
+	fr.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+	bl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
+	br.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+
+	if(abs(robotXError) < .25){
+		autoStep = 8;
+    fl.Set(ControlMode::PercentOutput, 0);
+    fr.Set(ControlMode::PercentOutput, 0); 
+    bl.Set(ControlMode::PercentOutput, 0);
+    br.Set(ControlMode::PercentOutput, 0);
+    
+	}
+}
+else if (autoStep == 8){
+	//Could be -60
+	targetRotation = 60;
+
+	robotRotError = targetRotation - robotAngle.value();
+
+	if(robotRotError > 1){
+
+		autoSpeedMulti = 1;
+
+	}
+	else if(robotRotError < -1) {
+
+		autoSpeedMulti = -1;
+
+	}
+	else{
+		autoSpeedMulti = robotRotError;
+	}
+
+	fl.Set(ControlMode::PercentOutput, autoSpeedMulti*.23);
+	fr.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+	bl.Set(ControlMode::PercentOutput, autoSpeedMulti*.23);
+	br.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+
+	if(abs(robotRotError) < 2.5){
+		autoStep = 9;
+  fl.Set(ControlMode::PercentOutput, 0);
+    fr.Set(ControlMode::PercentOutput, 0); 
+    bl.Set(ControlMode::PercentOutput, 0);
+    br.Set(ControlMode::PercentOutput, 0);
+	}
+}
+else if (autoStep == 9){
+	targetXPose = 16 * 3.28;
+
+	robotXError = targetXPose - robotX.value();
+
+	if(robotXError > 1){
+
+		autoSpeedMulti = 1;
+
+	}
+	else if(robotXError < -1) {
+
+		autoSpeedMulti = -1;
+
+	}
+	else{
+		autoSpeedMulti = robotXError;
+	}
+
+	fl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
+	fr.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+	bl.Set(ControlMode::PercentOutput, autoSpeedMulti*-.23);
+	br.Set(ControlMode::PercentOutput, autoSpeedMulti* .3);
+
+	if(abs(robotXError) < .25){
+		autoStep = 10;
+	}
+}
+else if(autoStep == 10){
+	ar.SetControl(m_request.WithPosition(39_tr));
+	mainShooter.Set(.6);
+	shooterDelay.Start();
+	autoStep = 10;
+}
+else if(autoStep == 11 && shooterDelay.HasElapsed(2_s)){
+	intakeMain.Set(.6);
+	intakeFollow.Set(.6);
+	autoStep = 12;
+}
+else if(autoStep == 12 && shooterDelay.HasElapsed(2.5_s)){
+	intakeMain.Set(0);
+	intakeFollow.Set(0);
+  mainShooter.Set(0);
+	ar.SetControl(m_request.WithPosition(1_tr));
+	shooterDelay.Stop();
+	shooterDelay.Reset();
+	autoStep = 13;
+}
+}
+else if (m_autoSelected == kAutoNameS){
+if(autoStep == 1){
+	ar.SetControl(m_request.WithPosition(39_tr));
+	mainShooter.Set(.6);
+	shooterDelay.Start();
+	autoStep = 2;
+}
+else if(autoStep == 2 && shooterDelay.HasElapsed(2_s)){
+	intakeMain.Set(.6);
+	intakeFollow.Set(.6);
+	autoStep = 3;
+}
+else if(autoStep == 3 && shooterDelay.HasElapsed(2.5_s)){
+	intakeMain.Set(0);
+	intakeFollow.Set(0);
+  mainShooter.Set(0);
+	ar.SetControl(m_request.WithPosition(1_tr));
+	shooterDelay.Stop();
+	shooterDelay.Reset();
+	autoStep = 4;
+}
+}
+}
+
 
 void Robot::TeleopInit() {
     /*m_odometry.ResetPosition(
@@ -308,7 +646,12 @@ void Robot::TeleopInit() {
     frc::Pose2d(0_m, 0_m, 0_rad)
   );*/
   gyro.Reset();
+  //gyro.SetYaw(-60_deg);
   nt::NetworkTableInstance::GetDefault().GetTable("limelight")->PutNumber("ledMode",1);
+
+  climbTimer.Start();
+  climbTimer.Stop();
+  climbTimer.Reset();
 }
 
 void Robot::TeleopPeriodic() {
@@ -373,6 +716,7 @@ void Robot::TeleopPeriodic() {
 
 
   //drive code
+  if(!XButton){
   if(ly>=0.1 || ly<=-0.1 || lx>=0.1 ||lx<=-0.1){
     fl.Set(ControlMode::PercentOutput, flipDrive*spd*((sin(-direction+(.25*Pi)))*magnitude + flipDrive*turn));
     fr.Set(ControlMode::PercentOutput, -flipDrive*spd*((sin(-direction-(.25*Pi)))*magnitude - flipDrive*turn));
@@ -390,7 +734,7 @@ void Robot::TeleopPeriodic() {
     bl.Set(ControlMode::PercentOutput, 0);
     br.Set(ControlMode::PercentOutput, 0);
   }
-
+  }
   frc::Pose2d robotPose = m_field.GetRobotPose();
 
   units::length::meter_t robotX = robotPose.X();
@@ -418,17 +762,21 @@ void Robot::TeleopPeriodic() {
   shootangle = ((1.223*(pow(targetdist, 3)))+(-9.969*(pow(targetdist, 2)))+(33.37*targetdist)+25.12);
   
   if(shootangle > 90){
-    shootangle = 90;
-  }else if(shootangle < 1){
-    shootangle = 1;
+    shootangle = 90;  
+  }else if(shootangle < 39){
+    shootangle = 39;
   }
 
-  double robotshootangle = (robotAngle.value() - atan(robotY.value()/(robotX.value()-5.5372)));
+  if(targetdist > 5){
+    shootangle = 39;
+  }
+
+  double robotshootangle = (robotAngle.value() - atan(robotY.value()-5.5372/(robotX.value())));
 
   frc::SmartDashboard::PutNumber("camtotarget", camtoTarget);
 
   //units::angle::turn_t offset{(1.1111111111111111111*(pGyroYaw - shootangle))};
-  units::angle::turn_t offset{(1.11111*shootangle)-12};
+  units::angle::turn_t offset{(1.11111*shootangle)-15};
   frc::SmartDashboard::PutNumber("shootangle", shootangle);
   frc::SmartDashboard::PutNumber("shootangleoffset", (1.11111*shootangle)+1);
   //frc::SmartDashboard::PutNumber("offset", (1.1111111111111111111*(pGyroYaw - shootangle)));
@@ -466,10 +814,35 @@ void Robot::TeleopPeriodic() {
   
   ar.SetControl(m_request.WithPosition(130_tr));
 
+  if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
+    ampError =  48.23 - robotX.value()*3.28;
   }
-  if(Dpad() == "Up"){
-    gyro.Reset();
+  else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue){
+    ampError =  6.04 - robotX.value()*3.28;
   }
+  else{
+    ampError = 0;
+  }
+
+  if(ampError > 1){
+    ampSpeedMulti = 1;
+  }
+  else if (ampError < -1){
+    ampSpeedMulti = -1;
+  }
+  else{
+    ampSpeedMulti = ampError;
+  }
+
+  fl.Set(ControlMode::PercentOutput, ampSpeedMulti*-.23);
+	fr.Set(ControlMode::PercentOutput, ampSpeedMulti* .3);
+	bl.Set(ControlMode::PercentOutput, ampSpeedMulti*.23);
+	br.Set(ControlMode::PercentOutput, ampSpeedMulti* -.3);
+  
+  }
+  //if(Dpad() == "Up"){
+    //gyro.Reset();
+  //}
 
   //Intake Statements
   if(YButton){
@@ -479,7 +852,7 @@ void Robot::TeleopPeriodic() {
     pickupActive = 1;
     xbox.SetRumble(frc::GenericHID::kBothRumble, 1);
   }
-/*  if(!stopSensor.Get()){
+  if(!stopSensor.Get()){
     intakeMain.Set(0);
     intakeFollow.Set(0);
     pickupTimer.Stop();
@@ -487,7 +860,7 @@ void Robot::TeleopPeriodic() {
     pickupActive = 0;
     xbox.SetRumble(frc::GenericHID::kBothRumble, 0);
   }
-  */
+  
   
   if(pickupTimer.HasElapsed(2.3_s)){
     intakeMain.Set(0);
@@ -579,6 +952,22 @@ void Robot::TeleopPeriodic() {
       cameraSelection.SetString(camera2.GetName());
       //DriverFeed.SetSource(camera2);
     }
+  }
+  if(Dpad() == "Left"){
+    ar.SetControl(m_request.WithPosition(101_tr));
+  }
+
+  if(Dpad() == "Down"){
+    cl.Set(ControlMode::PercentOutput, .6);
+    cr.Set(ControlMode::PercentOutput, -.6);
+  }
+  else if(Dpad() == "Up"){
+    cl.Set(ControlMode::PercentOutput, -.3);
+    cr.Set(ControlMode::PercentOutput, .3);
+  }
+  else{
+    cl.Set(ControlMode::PercentOutput, 0);
+    cr.Set(ControlMode::PercentOutput, 0);
   }
 
   //limelight angle is 61 degrees

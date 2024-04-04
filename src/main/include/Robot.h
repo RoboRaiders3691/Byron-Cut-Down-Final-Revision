@@ -18,6 +18,7 @@
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/smartdashboard/Field2d.h>
+#include <frc/DriverStation.h>
 
 #include <frc/kinematics/ChassisSpeeds.h>
 #include <frc/kinematics/Odometry.h>
@@ -49,6 +50,7 @@
 #include "frc/Timer.h"
 #include <frc/apriltag/AprilTagFieldLayout.h>
 #include <frc/apriltag/AprilTagFields.h>
+
 
 
 
@@ -84,8 +86,11 @@ class Robot : public frc::TimedRobot {
   std::string Dpad();
  private:
   frc::SendableChooser<std::string> m_chooser;
-  const std::string kAutoNameDefault = "Default";
-  const std::string kAutoNameCustom = "My Auto";
+  const std::string kAutoNameDefault = "No Auto";
+  const std::string kAutoNameMid = "Middle";
+  const std::string kAutoNameR = "Right";
+  const std::string kAutoNameL = "Left";
+  const std::string kAutoNameS = "Shoot Only";
   std::string m_autoSelected;
 
   //Setting Up Camera Streams
@@ -109,6 +114,10 @@ class Robot : public frc::TimedRobot {
   //Arm
   ctre::phoenix6::hardware::TalonFX al{7};
   ctre::phoenix6::hardware::TalonFX ar{8};
+
+  //Lift motors
+  TalonSRX cl{13};
+  TalonSRX cr{14};
 
   //Shoot/Intake
   rev::CANSparkMax secondaryShooter{10, rev::CANSparkLowLevel::MotorType::kBrushless};
@@ -176,10 +185,6 @@ class Robot : public frc::TimedRobot {
   //Instance of Pigeon2 Class
   phoenix6::hardware::Pigeon2 gyro{24};
 
-  //Lift motors
-  TalonSRX cl{13};
-  TalonSRX cr{14};
-
   PigeonIMU pGyro = PigeonIMU(cr); /* Pigeon is ribbon cabled to the specified TalonSRX. */
 
   //PigeonIMU pigeon = new PigeonIMU(14);
@@ -231,7 +236,7 @@ class Robot : public frc::TimedRobot {
    
   frc::Timer pickupTimer;
   frc::Timer shooterDelay;
-  frc::Timer autoTimer;
+  frc::Timer climbTimer;
   bool pickupActive= 0;
 
   std::shared_ptr<nt::NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
@@ -246,14 +251,25 @@ class Robot : public frc::TimedRobot {
     //photon::PhotonPoseEstimator camPoseEstimator{
       //aprilTagFieldLayout, photon::MULTI_TAG_PNP_ON_COPROCESSOR, std::move(pCamera1), robotToCam1};
 
-  double targetXPose = 0;
+  double targetXPose;
   double xPoseBlue = 0;
-  double xRobotError = 0;
+  double robotXError = 0;
   double autoSpeedMulti = 0;
+  double finalTurnPose = 0;
+  double targetRotation;
+  double robotRotError = 0;
+
+  double ampError = 0;
+  double ampSpeedMulti = 0;
 
   units::length::meter_t robotX{0_m};
   units::length::meter_t robotY{0_m};
   frc::Pose2d robotPose;
-  
+
+  int autoStep = 1;
+
+  //Chosen Starting Position as a std::string
+  std::string startPosition = "Right";
+
 
 };
