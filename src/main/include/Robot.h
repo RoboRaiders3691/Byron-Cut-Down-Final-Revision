@@ -221,9 +221,10 @@ class Robot : public frc::TimedRobot {
       units::meter_t{(((br.GetSelectedSensorPosition(0))/4096)*-0.635)}
     },
     //Red Start
-    //frc::Pose2d{15.2_m, 5.5_m, 0_rad} 
+    //frc::Pose2d{15.2_m, 5.5_m, 0_deg} 
     //Blue Start
-    frc::Pose2d{1.3_m, 5.5_m, 180_rad}
+    //frc::Pose2d{1.3_m, 5.5_m, 180_deg}
+    frc::Pose2d{0.6_m, 4.5_m, 120_deg}
   };
 
 

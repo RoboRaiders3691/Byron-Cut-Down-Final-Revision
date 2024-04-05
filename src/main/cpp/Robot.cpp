@@ -25,6 +25,7 @@ void Robot::RobotInit() {
   m_chooser.AddOption(kAutoNameR, kAutoNameR);
   m_chooser.AddOption(kAutoNameL, kAutoNameL);
   m_chooser.AddOption(kAutoNameS, kAutoNameS);
+
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 
   ctre::phoenix6::configs::TalonFXConfiguration talonFXConfigs{};
@@ -237,22 +238,23 @@ void Robot::AutonomousInit() {
   shooterDelay.Start();
   shooterDelay.Stop();
   shooterDelay.Reset();
+  gyro.SetYaw(120_deg);
 
-  if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
+  /*if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
     if(m_autoSelected == kAutoNameMid){
       gyro.Reset();
     }
   }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
     if(m_autoSelected == kAutoNameL){
-        gyro.SetYaw(60_deg);
+        gyro.SetYaw(-60_deg);
     }
   }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kRed){
     if(m_autoSelected == kAutoNameR){
-      gyro.SetYaw(-60_deg);
+      gyro.SetYaw(60_deg);
     }
   }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue){
     if(m_autoSelected == kAutoNameMid){
-      gyro.Reset();
+      gyro.SetYaw(-120_deg);
     }
   }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue){
     if(m_autoSelected == kAutoNameMid){
@@ -260,9 +262,9 @@ void Robot::AutonomousInit() {
     }
   }else if(frc::DriverStation::GetAlliance() == frc::DriverStation::kBlue){
     if(m_autoSelected == kAutoNameMid){
-      gyro.Reset();
+      gyro.SetYaw(120_deg);
     }
-  }
+  }*/
   
 
 
@@ -283,7 +285,7 @@ if(m_autoSelected == kAutoNameMid){
 
 if(autoStep == 1){
 	ar.SetControl(m_request.WithPosition(39_tr));
-	mainShooter.Set(.6);
+	mainShooter.Set(.7);
 	shooterDelay.Start();
 	autoStep = 2;
 }
@@ -373,7 +375,7 @@ else if(autoStep == 5){
 }
 else if (autoStep == 6){
 	ar.SetControl(m_request.WithPosition(39_tr));
-	mainShooter.Set(.6);
+	mainShooter.Set(.7);
 	shooterDelay.Start();
 	autoStep = 7;
 }
